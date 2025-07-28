@@ -1,0 +1,5 @@
+name "traycer"
+description "A simple ray tracer written in D."
+authors "Nathan Abebe"
+copyright "Copyright © 2025, Nathan Abebe"
+license "MIT"

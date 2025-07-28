@@ -1,0 +1,17 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/traycer
+traycer.so
+traycer.dylib
+traycer.dll
+traycer.a
+traycer.lib
+traycer-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
+dub.selections.json
