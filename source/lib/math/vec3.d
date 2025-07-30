@@ -1,12 +1,12 @@
-module math.vec3;
+module lib.math.vec3;
 
-import math.utils : sqrt, inverseSqrt, pow;
+import lib.math.utils : sqrt, inverseSqrt, pow;
 
 struct Vec3
 {
-	immutable float x;
-	immutable float y;
-	immutable float z;
+	float x;
+	float y;
+	float z;
 
 	this(const float x, const float y, const float z)
 	{
@@ -26,7 +26,9 @@ struct Vec3
     }
 	bool opBinary(string op : "=")(const Vec3 rhs) const
 	{
-		return fequals(this.x, rhs.x) && fequals(this.y, rhs.y) && fequals(this.z, rhs.z);
+		return fequals(this.x, rhs.x) 
+			&& fequals(this.y, rhs.y) 
+			&& fequals(this.z, rhs.z);
 	}
 	Vec3 opBinary(string op : "+")(Vec3 rhs) const
     {
@@ -51,11 +53,15 @@ struct Vec3
 	
 	float norm() const
 	{
-		return sqrt(pow(this.x, 2) + pow(this.y, 2) + pow(this.z, 2));
+		return sqrt(
+			pow(this.x, 2) + pow(this.y, 2) + pow(this.z, 2)
+		);
 	}
 	Vec3 normalized() const
 	{
-		return this * inverseSqrt(pow(this.x, 2) + pow(this.y, 2) + pow(this.z, 2));
+		return this * inverseSqrt(
+			pow(this.x, 2) + pow(this.y, 2) + pow(this.z, 2)
+		);
 	}
 	float dot(const Vec3 v) const
 	{
@@ -71,7 +77,9 @@ struct Vec3
 	}
 	float distance(const Vec3 v) const
 	{
-		return sqrt(pow(this.x - v.x, 2) + pow(this.y - v.y, 2) + pow(this.z - v.z, 2));
+		return sqrt(
+			pow(this.x - v.x, 2) + pow(this.y - v.y, 2) + pow(this.z - v.z, 2)
+		);
 	}
 }
 

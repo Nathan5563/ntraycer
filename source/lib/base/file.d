@@ -1,13 +1,13 @@
-module core.file;
+module lib.base.file;
 
-enum SYS_READ  = 0;
+enum SYS_READ = 0;
 enum SYS_WRITE = 1;
-enum SYS_OPEN  = 2;
+enum SYS_OPEN = 2;
 enum SYS_CLOSE = 3;
 
 enum O_WRONLY = 0x1;
-enum O_CREAT  = 0x40;
-enum O_TRUNC  = 0x200;
+enum O_CREAT = 0x40;
+enum O_TRUNC = 0x200;
 
 int sys_open(const char* path, int flags, int mode)
 {
@@ -24,7 +24,8 @@ int sys_open(const char* path, int flags, int mode)
     return fd;
 }
 
-ptrdiff_t sys_write(int fd, const void* buf, size_t count) {
+ptrdiff_t sys_write(int fd, const void* buf, size_t count)
+{
     ptrdiff_t ret;
     asm
     {
@@ -38,7 +39,8 @@ ptrdiff_t sys_write(int fd, const void* buf, size_t count) {
     return ret;
 }
 
-int sys_close(int fd) {
+int sys_close(int fd)
+{
     int ret;
     asm
     {

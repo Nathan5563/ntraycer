@@ -1,12 +1,12 @@
-module math.ray;
+module lib.math.ray;
 
-import math.vec3 : Vec3;
-import math.utils : acos;
+import lib.math.vec3 : Vec3;
+import lib.math.utils : acos;
 
 struct Ray
 {
-	immutable Vec3 origin;
-	immutable Vec3 direction;
+	Vec3 origin;
+	Vec3 direction;
 
 	this(const Vec3 origin, const Vec3 direction)
 	{

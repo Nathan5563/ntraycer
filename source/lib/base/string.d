@@ -1,4 +1,4 @@
-module core.string;
+module lib.base.string;
 
 struct String
 {

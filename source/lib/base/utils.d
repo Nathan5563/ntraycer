@@ -1,6 +1,6 @@
-module core.utils;
+module lib.base.utils;
 
-import math.utils : abs;
+import lib.math.utils : abs;
 
 template isIntegral(T)
 {

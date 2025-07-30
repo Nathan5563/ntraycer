@@ -1,6 +1,6 @@
-module math.utils;
+module lib.math.utils;
 
-import core.utils : isFloatingPoint, isIntegral;
+import lib.base.utils : isFloatingPoint, isIntegral;
 
 enum float EPSILON = 1e-6f;
 
