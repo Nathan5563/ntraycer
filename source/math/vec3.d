@@ -1,6 +1,6 @@
 module math.vec3;
 
-import math.utils;
+import math.utils : sqrt, inverseSqrt, pow;
 
 struct Vec3
 {

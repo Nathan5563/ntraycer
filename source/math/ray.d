@@ -1,7 +1,7 @@
 module math.ray;
 
-import math.vec3;
-import math.utils;
+import math.vec3 : Vec3;
+import math.utils : acos;
 
 struct Ray
 {
