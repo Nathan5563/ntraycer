@@ -1,12 +1,14 @@
 module math.utils;
 
-import std.math : isNaN, isInfinity;
+import core.utils : isFloatingPoint, isIntegral;
 
 enum float EPSILON = 1e-6f;
 
-float abs(float num)
+pragma(inline, true)
+T abs(T)(const T num)
+@nogc @safe pure nothrow if (isFloatingPoint!T || isIntegral!T)
 {
-    if (num >= 0.0f)
+    if (num >= 0)
     {
         return num;
     }
@@ -16,16 +18,51 @@ float abs(float num)
     }
 }
 
-float pow(float base, int exp)
+pragma(inline, true)
+T max(T)(const T num1, const T num2)
+@nogc @safe pure nothrow if (isFloatingPoint!T || isIntegral!T)
 {
-    if (isnan(base) || isInfinity(base))
+    if (num1 > num2)
     {
-        throw new Exception("Invalid float");
+        return num1;
     }
-    if ((exp <= 0) && (abs(base) < EPSILON))
+    else
     {
-        throw new Exception("Float is too close to 0 for stable computation");
+        return num2;
     }
+}
+
+pragma(inline, true)
+T min(T)(const T num1, const T num2)
+@nogc @safe pure nothrow if (isFloatingPoint!T || isIntegral!T)
+{
+    if (num1 > num2)
+    {
+        return num2;
+    }
+    else
+    {
+        return num1;
+    }
+}
+
+pragma(inline, true)
+T clamp(T)(const T value, const T minVal, const T maxVal)
+@nogc @safe pure nothrow if (isFloatingPoint!T || isIntegral!T)
+{
+    return max(minVal, min(maxVal, value));
+}
+
+pragma(inline, true)
+bool fequals(const float num1, const float num2) @nogc @safe pure nothrow
+{
+    return abs(num1 - num2) < EPSILON;
+}
+
+pragma(inline, true)
+float pow(const float base, const int exp) @nogc @safe pure nothrow
+{
+    assert(!((exp <= 0) && (abs(base) < EPSILON)));
 
     if (exp == 0)
     {
@@ -33,41 +70,35 @@ float pow(float base, int exp)
     }
     else
     {
-        if (exp < 0)
+        float b = base;
+        int e = exp;
+
+        if (e < 0)
         {
-            base = 1.0f / base;
-            exp = -exp;
+            b = 1.0f / b;
+            e = -e;
         }
 
         float res = 1.0f;
-        while (exp != 0)
+        while (e != 0)
         {
-            if ((exp & 1) != 0)
+            if ((e & 1) != 0)
             {
-                res *= base;
+                res *= b;
             }
-            base *= base;
-            exp >>= 1;
+            b *= b;
+            e >>= 1;
         }
 
         return res;
     }
 }
 
-float inverseSqrt(float num)
+pragma(inline, true)
+float inverseSqrt(const float num) @nogc pure nothrow
 {
-    if (isnan(num) || isInfinity(num))
-    {
-        throw new Exception("Invalid float");
-    }
-    if (num < 0)
-    {
-        throw new Exception("Cannot compute square root of a negative number");
-    }
-    if (abs(num) < EPSILON)
-    {
-        throw new Exception("Float is too close to 0 for stable computation");
-    }
+    assert(!(num < 0));
+    assert(!(abs(num) < EPSILON));
 
     float x2 = num * 0.5f;
     float y = num;
@@ -82,9 +113,27 @@ float inverseSqrt(float num)
     return y;
 }
 
-float sqrt(float num)
+pragma(inline, true)
+float sqrt(const float num) @nogc pure nothrow
 {
     return 1.0f / inverseSqrt(num);
+}
+
+pragma(inline, true)
+float acos(const float num) @nogc pure nothrow
+{
+    float n = clamp(num, -1.0f, 1.0f);
+
+    bool negate = n < 0.0f;
+    n = abs(n);
+
+    float ret = -0.0187293f;
+    ret = ret * n + 0.0742610f;
+    ret = ret * n - 0.2121144f;
+    ret = ret * n + 1.5707288f;
+    ret *= sqrt(1.0f - n);
+
+    return negate ? (3.14159265f - ret) : ret;
 }
 
 // TODO: UNIT TESTS
