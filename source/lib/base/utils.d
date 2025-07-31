@@ -1,3 +1,6 @@
+/**
+ * This module provides base functionality for common utilities.
+ */
 module lib.base.utils;
 
 import lib.math.utils : abs;

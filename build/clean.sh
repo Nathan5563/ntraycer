@@ -1,5 +1,4 @@
 #!/bin/bash
 
 dub clean
-rm -f traycer
-rm -f image.ppm
+rm -f ntraycer ntraycer-test-library image.ppm dub.selections.json

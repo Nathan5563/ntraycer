@@ -1,5 +1,11 @@
+/**
+ * This module provides base functionality for mutable strings. It is used by
+ * `source/lib/render/renderer.d` to convert the rendered image into a text
+ * format.
+ */
 module lib.base.string;
 
+/// @struct Mutable string
 struct String
 {
     char[] buf;
