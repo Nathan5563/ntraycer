@@ -35,7 +35,7 @@ string intToString(const int value)
     char[32] buf;
     size_t size = buf.length;
 
-    bool neg = v < 0;
+    const bool neg = v < 0;
     v = abs(v);
     do
     {

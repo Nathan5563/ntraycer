@@ -90,11 +90,11 @@ unittest
     // this, clone, opBinary "=="
     auto v1 = Vec3(1.0f, 2.0f, 3.0f);
     assert(v1.x == 1.0f && v1.y == 2.0f && v1.z == 3.0f);
-    auto v1_clone = v1.clone();
+    const auto v1_clone = v1.clone();
     assert(v1 == v1_clone);
 
     // opUnary "-", opBinary "=="
-    auto v_neg = -v1;
+    const auto v_neg = -v1;
     assert(v_neg == Vec3(-1.0f, -2.0f, -3.0f));
     auto zero = Vec3(0.0, 0.0f, 0.0f);
     assert(-zero == zero);
@@ -106,24 +106,24 @@ unittest
     assert(Vec3(1.0f, 1.0f, 1.0f) != Vec3(1.0f + EPSILON*2, 1.0f + EPSILON*2, 1.0f + EPSILON*2));
 
     // opBinary "+", opBinary "=="
-    auto v2 = Vec3(4.0f, 5.0f, 6.0f);
-    auto v_add = v1 + v2;
+    const auto v2 = Vec3(4.0f, 5.0f, 6.0f);
+    const auto v_add = v1 + v2;
     assert(v_add == Vec3(5.0f, 7.0f, 9.0f));
     assert(v1 + zero == v1);
 
     // opBinary "-", opBinary "=="
-    auto v_sub = v2 - v1;
+    const auto v_sub = v2 - v1;
     assert(v_sub == Vec3(3.0f, 3.0f, 3.0f));
     assert(v1 - v1 == zero);
 
     // opBinary "*", opBinaryRight "*", opBinary "=="
-    auto v_mul = v1 * 2.0f;
+    const auto v_mul = v1 * 2.0f;
     assert(v_mul == Vec3(2.0f, 4.0f, 6.0f));
     assert(2.0f * v1 == Vec3(2.0f, 4.0f, 6.0f));
     assert(v1 * 0.0f == zero);
 
     // opBinary "/", opBinary "=="
-    auto v_div = v1 / 2.0f;
+    const auto v_div = v1 / 2.0f;
     assert(v_div == Vec3(0.5f, 1.0f, 1.5f));
 
     // norm
@@ -166,7 +166,7 @@ unittest
     assert(v1.cross(v1) == zero);
     auto v_c1 = Vec3(2.0f, 3.0f, 4.0f);
     auto v_c2 = Vec3(5.0f, 6.0f, 7.0f);
-    auto v_c_res = Vec3(3.0f*7.0f - 4.0f*6.0f, 4.0f*5.0f - 2.0f*7.0f, 2.0f*6.0f - 3.0f*5.0f);
+    const auto v_c_res = Vec3(3.0f*7.0f - 4.0f*6.0f, 4.0f*5.0f - 2.0f*7.0f, 2.0f*6.0f - 3.0f*5.0f);
     assert(v_c1.cross(v_c2) == v_c_res);
     assert(v_c1.cross(v_c2) == Vec3(-3.0f, 6.0f, -3.0f));
 

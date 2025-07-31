@@ -10,14 +10,14 @@ void main()
 	renderer.render(scene);
 	String image = renderer.film.save(ImageFormat.PPM);
 
-	int flags = FileFlags.WRONLY | FileFlags.CREAT | FileFlags.TRUNC;
-	int perm = FilePermissions.o644;
-	int fd = sys_open("image.ppm", flags, perm);
+	const int flags = FileFlags.WRONLY | FileFlags.CREAT | FileFlags.TRUNC;
+	const int perm = FilePermissions.o644;
+	const int fd = sys_open("image.ppm", flags, perm);
 	assert(!(fd < 0));
 
-	ptrdiff_t nbytes = sys_write(fd, image.buf.ptr, image.size);
+	const ptrdiff_t nbytes = sys_write(fd, image.buf.ptr, image.size);
 	assert(nbytes == image.size);
 	
-	int ret = sys_close(fd);
+	const int ret = sys_close(fd);
 	assert(!(ret < 0));
 }

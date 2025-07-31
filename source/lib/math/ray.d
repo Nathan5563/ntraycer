@@ -53,12 +53,12 @@ unittest
 	auto z_axis = Vec3(0.0f, 0.0f, 1.0f);
 
 	// this
-	auto r1 = Ray(o, x_axis);
+	const auto r1 = Ray(o, x_axis);
 	assert(r1.origin == o);
 	assert(r1.direction == x_axis);
-	auto r2 = Ray(o, Vec3(5.0f, 0.0f, 0.0f));
+	const auto r2 = Ray(o, Vec3(5.0f, 0.0f, 0.0f));
 	assert(r2.direction == x_axis);
-	auto r3 = Ray(Vec3(1.0f, 2.0f, 3.0f), Vec3(1.0f, 1.0f, 1.0f));
+	const auto r3 = Ray(Vec3(1.0f, 2.0f, 3.0f), Vec3(1.0f, 1.0f, 1.0f));
 	assert(r3.origin == Vec3(1.0f, 2.0f, 3.0f));
 
 	// at

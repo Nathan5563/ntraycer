@@ -109,7 +109,7 @@ float inverseSqrt(const float num) @nogc pure nothrow
 {
     assert(num > 0);
 
-    float x2 = num * 0.5f;
+    const float x2 = num * 0.5f;
     float y = num;
 
     int i = *cast(int*)&y;
@@ -141,7 +141,7 @@ float acos(const float num) @nogc pure nothrow
 {
     float n = clamp(num, -1.0f, 1.0f);
 
-    bool negate = n < 0.0f;
+    const bool negate = n < 0.0f;
     n = abs(n);
 
     float ret = -0.0187293f;
