@@ -52,4 +52,39 @@ string intToString(const int value)
     return buf[size .. $].idup;
 }
 
-// TODO: UNIT TESTS
+unittest
+{
+    // isIntegral
+    static assert(isIntegral!int);
+    static assert(isIntegral!uint);
+    static assert(isIntegral!short);
+    static assert(isIntegral!ushort);
+    static assert(isIntegral!long);
+    static assert(isIntegral!ulong);
+    static assert(isIntegral!byte);
+    static assert(isIntegral!ubyte);
+    static assert(isIntegral!char);
+    static assert(isIntegral!wchar);
+    static assert(isIntegral!dchar);
+    static assert(!isIntegral!float);
+    static assert(!isIntegral!double);
+    static assert(!isIntegral!real);
+
+    // isFloatingPoint
+    static assert(isFloatingPoint!float);
+    static assert(isFloatingPoint!double);
+    static assert(isFloatingPoint!real);
+    static assert(!isFloatingPoint!int);
+    static assert(!isFloatingPoint!char);
+
+    // intToString
+    assert(intToString(0) == "0");
+    assert(intToString(123) == "123");
+    assert(intToString(-123) == "-123");
+    assert(intToString(100) == "100");
+    assert(intToString(-100) == "-100");
+    assert(intToString(int.max) == "2147483647");
+    assert(intToString(int.min) == "-2147483648");
+    assert(intToString(9) == "9");
+    assert(intToString(-9) == "-9");
+}

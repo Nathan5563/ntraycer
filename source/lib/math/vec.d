@@ -1,23 +1,81 @@
-module lib.math.vec3;
+module lib.math.vec;
 
 import lib.math.utils : sqrt, inverseSqrt, fequals, EPSILON;
 
+struct Vec2
+{
+    float u, v;
+
+    this(const float u, const float v)
+    {
+        this.u = u;
+        this.v = v;
+    }
+
+    bool opEquals(const Vec2 rhs) const
+	{
+		return fequals(this.u, rhs.u) 
+            && fequals(this.v, rhs.v) ;
+	}
+	Vec2 opUnary(string s)() const if (s == "-")
+    {
+        return Vec2(-this.u, -this.v);
+    }
+	Vec2 opBinary(string op : "+")(Vec2 rhs) const
+    {
+        return Vec2(this.u + rhs.u, this.v + rhs.v);
+    }
+	Vec2 opBinary(string op : "-")(Vec2 rhs) const
+    {
+        return Vec2(this.u - rhs.u, this.v - rhs.v);
+    }
+	Vec2 opBinary(string op : "*")(const float rhs) const
+	{
+		return Vec2(this.u * rhs, this.v  * rhs);
+	}
+	Vec2 opBinary(string op : "/")(const float rhs) const
+	{
+		return Vec2(this.u / rhs, this.v  / rhs);
+	}
+	Vec2 opBinaryRight(string op : "*")(const float lhs) const
+	{
+		return Vec2(lhs * this.u, lhs * this.v);
+	}
+	
+	float norm() const
+	{
+		return sqrt(
+			this.u * this.u + this.v * this.v
+		);
+	}
+	Vec2 normalized() const
+	{
+		return this * inverseSqrt(
+			this.u * this.u + this.v * this.v
+		);
+	}
+	float dot(const Vec2 v) const
+	{
+		return this.u * v.u + this.v * v.v;
+	}
+	float distance(const Vec2 v) const
+	{
+		return sqrt(
+			(this.u - v.u) * (this.u - v.u) +
+            (this.v - v.v) * (this.v - v.v)
+		);
+	}
+}
+
 struct Vec3
 {
-	float x;
-	float y;
-	float z;
+	float x, y, z;
 
 	this(const float x, const float y, const float z)
 	{
 		this.x = x;
 		this.y = y;
 		this.z = z;
-	}
-
-	Vec3 clone() const
-	{
-		return Vec3(this.x, this.y, this.z);
 	}
 
     bool opEquals(const Vec3 rhs) const
@@ -85,13 +143,13 @@ struct Vec3
 	}
 }
 
+// TODO: UNIT TESTS (for Vec2)
+
 unittest
 {
-    // this, clone, opBinary "=="
+    // this
     auto v1 = Vec3(1.0f, 2.0f, 3.0f);
     assert(v1.x == 1.0f && v1.y == 2.0f && v1.z == 3.0f);
-    const auto v1_clone = v1.clone();
-    assert(v1 == v1_clone);
 
     // opUnary "-", opBinary "=="
     const auto v_neg = -v1;

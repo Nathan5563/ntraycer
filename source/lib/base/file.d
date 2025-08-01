@@ -1,6 +1,6 @@
 /**
- * This module provides base functionality for IO operations. It is used by
- * `source/app.d` to output the rendered image.
+ * This module provides base functionality for IO operations. It is used to
+ * output the rendered image.
  */
 module lib.base.file;
 
