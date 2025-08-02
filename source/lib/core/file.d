@@ -1,8 +1,9 @@
+// COMPLETE
 /**
  * This module provides base functionality for IO operations. It is used to
- * output the rendered image.
+ * output the rendered image as a file.
  */
-module lib.base.file;
+module lib.core.file;
 
 /// @enum Syscall numbers
 enum Syscall

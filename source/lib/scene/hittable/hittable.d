@@ -1,11 +1,12 @@
+// COMPLETE
 /**
  * This module provides the interface for objects that can be hit by rays. It
  * is implemented by geometric primitives which are used to build a scene.
  */
-module lib.geom.hittable;
+module lib.scene.hittable.hittable;
 
-import lib.math.ray : Ray;
-import lib.math.vec : Vec3;
+import lib.core.math : Vec3, Ray;
+import lib.scene.material.material : Material;
 
 /// @struct HitInfo - Contains information about a ray-object intersection
 struct HitInfo
@@ -18,6 +19,8 @@ struct HitInfo
     float time;
     /// @prop frontFace - true if the ray hit the front face, false otherwise
     bool frontFace;
+    /// @prop material - the material of the object that was hit
+    Material material;
 
     /// @func setFaceNormal - Sets the face's normal depending on ray direction
     /// 
@@ -48,7 +51,5 @@ interface Hittable
     /// @param hitInfo - the hit information to fill if the ray hits the object
     ///
     /// @returns - true if the ray hit the object, false otherwise
-    bool hit(Ray r, float timeMin, float timeMax, out HitInfo hitInfo);
+    bool hit(Ray r, float timeMin, float timeMax, out HitInfo hitInfo) const;
 }
-
-// TODO: UNIT TESTS
