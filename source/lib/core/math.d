@@ -336,14 +336,18 @@ struct Vec3
     {
         return Vec3(this.x - rhs.x, this.y - rhs.y, this.z - rhs.z);
     }
-	Vec3 opBinary(string op : "*")(float rhs) const
-	{
-		return Vec3(this.x * rhs, this.y  * rhs, this.z * rhs);
-	}
-	Vec3 opBinary(string op : "/")(float rhs) const
-	{
-		return Vec3(this.x / rhs, this.y  / rhs, this.z / rhs);
-	}
+        Vec3 opBinary(string op : "*")(float rhs) const
+        {
+                return Vec3(this.x * rhs, this.y  * rhs, this.z * rhs);
+        }
+        Vec3 opBinary(string op : "*")(Vec3 rhs) const
+    {
+        return Vec3(this.x * rhs.x, this.y * rhs.y, this.z * rhs.z);
+    }
+        Vec3 opBinary(string op : "/")(float rhs) const
+        {
+                return Vec3(this.x / rhs, this.y  / rhs, this.z / rhs);
+        }
 	Vec3 opBinaryRight(string op : "*")(float lhs) const
 	{
 		return Vec3(lhs * this.x, lhs * this.y, lhs * this.z);
@@ -423,6 +427,21 @@ struct Ray
 		}
 		return acos(cosTheta);
 	}
+}
+
+pragma(inline, true)
+Vec3 reflect(Vec3 v, Vec3 n)
+{
+    return v - 2.0f * v.dot(n) * n;
+}
+
+pragma(inline, true)
+Vec3 refract(Vec3 uv, Vec3 n, float etaiOverEtat)
+{
+    float cosTheta = min((-uv).dot(n), 1.0f);
+    Vec3 rOutPerp = etaiOverEtat * (uv + cosTheta * n);
+    Vec3 rOutParallel = -sqrt(abs(1.0f - rOutPerp.dot(rOutPerp))) * n;
+    return rOutPerp + rOutParallel;
 }
 
 unittest
