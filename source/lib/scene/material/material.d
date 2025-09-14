@@ -5,5 +5,10 @@ import lib.scene.hittable.hittable : HitInfo;
 
 interface Material
 {
-    Vec3 shade(const Ray ray, const HitInfo hitInfo) const;
+    bool scatter(
+        const Ray ray,
+        const HitInfo hitInfo,
+        out Vec3 attenuation,
+        out Ray scattered
+    ) const;
 }

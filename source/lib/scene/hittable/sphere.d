@@ -8,13 +8,13 @@ class Sphere : Hittable
 {
     private Vec3 center;
     private float radius;
-    // private Material material;
+    private Material material;
 
-    this(Vec3 center, float radius)
+    this(Vec3 center, float radius, Material material)
     {
         this.center = center;
         this.radius = radius;
-        // this.material = material;
+        this.material = material;
     }
 
     bool hit(Ray r, float timeMin, float timeMax, out HitInfo hitInfo) const
@@ -37,7 +37,7 @@ class Sphere : Hittable
                 hitInfo.point = r.at(r1);
                 Vec3 outwardNormal = (hitInfo.point - center) / radius;
                 hitInfo.setFaceNormal(r, outwardNormal);
-                // hitInfo.material = material;
+                hitInfo.material = cast(Material)material;
                 return true;
             }
 
@@ -48,7 +48,7 @@ class Sphere : Hittable
                 hitInfo.point = r.at(r2);
                 Vec3 outwardNormal = (hitInfo.point - center) / radius;
                 hitInfo.setFaceNormal(r, outwardNormal);
-                // hitInfo.material = material;
+                hitInfo.material = cast(Material)material;
                 return true;
             }
         }

@@ -1,8 +1,9 @@
 module lib.scene.material.lambertian;
 
-import lib.core.math : Vec3, Ray, max;
+import lib.core.math : Vec3, Ray, EPSILON;
 import lib.scene.material.material : Material;
 import lib.scene.hittable.hittable : HitInfo;
+import lib.core.random : randomUnitVector;
 
 class Lambertian : Material
 {
@@ -13,11 +14,21 @@ class Lambertian : Material
         this.albedo = albedo;
     }
 
-    Vec3 shade(const Ray ray, const HitInfo hitInfo) const
+    bool scatter(
+        const Ray ray,
+        const HitInfo hitInfo,
+        out Vec3 attenuation,
+        out Ray scattered
+    ) const
     {
-        Vec3 L = Vec3(1, 1, 1).normalized();
-        float intensity = max(hitInfo.normal.dot(L), 0.0f);
-        return this.albedo * intensity;
+        Vec3 scatterDirection = hitInfo.normal + randomUnitVector();
+        if (scatterDirection.norm() < EPSILON)
+        {
+                scatterDirection = hitInfo.normal;
+        }
+        scattered = Ray(hitInfo.point, scatterDirection);
+        attenuation = this.albedo;
+        return true;
     }
 }
 
