@@ -98,7 +98,8 @@ class Renderer
                     scatterResult.attenuation.z * scattered_color.z
                 );
             }
-            return Vec3(0.0f, 0.0f, 0.0f);
+            // Material didn't scatter - return its attenuation as emission
+            return scatterResult.attenuation;
         }
 
         return scene.background.sample(ray);

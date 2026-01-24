@@ -2,10 +2,12 @@
 /**
  * This module defines the Scene class which holds all objects, the camera,
  * and background for rendering. It implements Hittable to allow ray testing
- * against all objects in the scene.
+ * against all objects in the scene, using BVH acceleration for faster
+ * intersection tests.
  */
 module lib.scene.scene;
 
+import lib.accel.bvh : BVHAccelerator;
 import lib.core.math : Vec3, Ray, RNG;
 import lib.scene.camera.camera : Camera;
 import lib.scene.hittable.hittable : Hittable, HitInfo;
@@ -19,6 +21,7 @@ class Scene : Hittable
     /// @prop background - the background/environment for missed rays
     Background background;
     private Hittable[] objects;
+    private BVHAccelerator bvh;
 
     /// @func this - Creates an empty scene with default sky background
     this()
@@ -26,6 +29,7 @@ class Scene : Hittable
         this.camera = null;
         this.background = skyBackground();
         this.objects = [];
+        this.bvh = null;
     }
 
     /// @func this - Creates a scene with camera and objects, default sky background
@@ -37,6 +41,7 @@ class Scene : Hittable
         this.camera = camera;
         this.background = skyBackground();
         this.objects = objects;
+        this.bvh = new BVHAccelerator(objects);
     }
 
     /// @func this - Creates a scene with camera, objects, and custom background
@@ -49,11 +54,16 @@ class Scene : Hittable
         this.camera = camera;
         this.background = background;
         this.objects = objects;
+        this.bvh = new BVHAccelerator(objects);
     }
 
-    /// @func hit - Tests a ray against all objects, returning the closest hit
+    /// @func hit - Tests a ray against BVH-accelerated objects, returning the closest hit
     bool hit(Ray r, float timeMin, float timeMax, out HitInfo hitInfo) const
     {
+        if (bvh !is null)
+            return bvh.hit(r, timeMin, timeMax, hitInfo);
+
+        // Fallback to linear search if no BVH
         HitInfo tmpHit;
         bool hitAnything = false;
         float closestHit = timeMax;

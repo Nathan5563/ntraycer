@@ -10,26 +10,40 @@ const float PI = 3.14159265f;
 
 template isIntegral(T)
 {
+    alias U = Unqual!T;
     enum bool isIntegral = 
-        is(T == byte) ||
-        is(T == ubyte) ||
-        is(T == short) ||
-        is(T == ushort) ||
-        is(T == int) ||
-        is(T == uint) ||
-        is(T == long) ||
-        is(T == ulong) ||
-        is(T == char) ||
-        is(T == wchar) ||
-        is(T == dchar);
+        is(U == byte) ||
+        is(U == ubyte) ||
+        is(U == short) ||
+        is(U == ushort) ||
+        is(U == int) ||
+        is(U == uint) ||
+        is(U == long) ||
+        is(U == ulong) ||
+        is(U == char) ||
+        is(U == wchar) ||
+        is(U == dchar);
 }
 
 template isFloatingPoint(T)
 {
+    alias U = Unqual!T;
     enum bool isFloatingPoint = 
-        is(T == float) ||
-        is(T == double) ||
-        is(T == real);
+        is(U == float) ||
+        is(U == double) ||
+        is(U == real);
+}
+
+template Unqual(T)
+{
+    static if (is(T U == const U))
+        alias Unqual = U;
+    else static if (is(T U == immutable U))
+        alias Unqual = U;
+    else static if (is(T U == shared U))
+        alias Unqual = U;
+    else
+        alias Unqual = T;
 }
 
 pragma(inline, true)

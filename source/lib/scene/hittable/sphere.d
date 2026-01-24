@@ -5,12 +5,14 @@
  */
 module lib.scene.hittable.sphere;
 
+import lib.accel.aabb : AABB;
+import lib.accel.bvh : Boundable;
 import lib.core.math : Vec3, Ray, sqrt;
 import lib.scene.hittable.hittable : Hittable, HitInfo;
 import lib.scene.material.material : Material;
 
 /// @class Sphere - A sphere defined by center point and radius
-class Sphere : Hittable
+class Sphere : Hittable, Boundable
 {
     private Vec3 center;
     private float radius;
@@ -66,6 +68,13 @@ class Sphere : Hittable
         }
 
         return false;
+    }
+
+    /// @func boundingBox - Returns the axis-aligned bounding box of the sphere
+    AABB boundingBox() const
+    {
+        Vec3 radiusVec = Vec3(radius, radius, radius);
+        return AABB(center - radiusVec, center + radiusVec);
     }
 }
 
