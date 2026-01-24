@@ -1,4 +1,4 @@
-// COMPLETE, ADD DOCS, ADD TESTS
+// COMPLETE
 /** 
  * This module provides all of the mathematical types necessary for the
  * project, and it includes helpful utility functions.
@@ -169,7 +169,10 @@ pragma(inline, true)
 float inverseSqrt(float num)
 @nogc pure nothrow
 {
-    assert(num > 0);
+    if (num <= 0.0f)
+    {
+        return 0.0f;
+    }
 
     const float x2 = num * 0.5f;
     float y = num;
@@ -357,9 +360,12 @@ struct Vec3
 	}
 	Vec3 normalized() const
 	{
-		return this * inverseSqrt(
-			this.x * this.x + this.y * this.y + this.z * this.z
-		);
+		const float lenSq = this.x * this.x + this.y * this.y + this.z * this.z;
+		if (lenSq < EPSILON * EPSILON)
+		{
+			return Vec3(0.0f, 0.0f, 0.0f);
+		}
+		return this * inverseSqrt(lenSq);
 	}
 	float dot(const Vec3 v) const
 	{
@@ -381,9 +387,94 @@ struct Vec3
             (this.z - v.z) * (this.z - v.z)
 		);
 	}
+	pragma(inline, true)
+	float opIndex(size_t i) const
+	@nogc @safe pure nothrow
+	{
+		if (i == 0) return x;
+		if (i == 1) return y;
+		return z;
+	}
 }
 
 // TODO: UNIT TESTS (for Vec2)
+
+struct RNG
+{
+    private uint state;
+
+    this(uint seed)
+    {
+        this.state = seed;
+        if (this.state == 0)
+        {
+            this.state = 1;
+        }
+    }
+
+    pragma(inline, true)
+    uint next()
+    @nogc @safe pure nothrow
+    {
+        uint x = this.state;
+        x ^= x << 13;
+        x ^= x >> 17;
+        x ^= x << 5;
+        this.state = x;
+        return x;
+    }
+
+    pragma(inline, true)
+    float nextFloat()
+    @nogc @safe pure nothrow
+    {
+        return (this.next() & 0xFFFFFF) / cast(float)(0x1000000);
+    }
+
+    pragma(inline, true)
+    float nextFloatRange(float minVal, float maxVal)
+    @nogc @safe pure nothrow
+    {
+        return minVal + (maxVal - minVal) * this.nextFloat();
+    }
+
+    pragma(inline, true)
+    Vec3 randomInUnitSphere()
+    {
+        while (true)
+        {
+            Vec3 p = Vec3(
+                this.nextFloatRange(-1.0f, 1.0f),
+                this.nextFloatRange(-1.0f, 1.0f),
+                this.nextFloatRange(-1.0f, 1.0f)
+            );
+            if (p.dot(p) < 1.0f)
+            {
+                return p;
+            }
+        }
+    }
+
+    pragma(inline, true)
+    Vec3 randomUnitVector()
+    {
+        return this.randomInUnitSphere().normalized();
+    }
+
+    pragma(inline, true)
+    Vec3 randomOnHemisphere(Vec3 normal)
+    {
+        Vec3 onUnitSphere = this.randomUnitVector();
+        if (onUnitSphere.dot(normal) > 0.0f)
+        {
+            return onUnitSphere;
+        }
+        else
+        {
+            return -onUnitSphere;
+        }
+    }
+}
 
 struct Ray
 {
@@ -423,6 +514,29 @@ struct Ray
 		}
 		return acos(cosTheta);
 	}
+}
+
+pragma(inline, true)
+Vec3 reflect(Vec3 v, Vec3 n)
+{
+    return v - 2.0f * v.dot(n) * n;
+}
+
+pragma(inline, true)
+bool refract(Vec3 v, Vec3 n, float niOverNt, out Vec3 refracted)
+{
+    Vec3 uv = v.normalized();
+    float dt = uv.dot(n);
+    float discriminant = 1.0f - niOverNt * niOverNt * (1 - dt * dt);
+    if (discriminant > 0)
+    {
+        refracted = niOverNt * (uv - n * dt) - n * sqrt(discriminant);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 unittest
@@ -591,7 +705,46 @@ unittest
     static assert(fequals(acos(0.8660254f), PI / 6.0f));
     static assert(fequals(acos(-0.8660254f), 5.0f * PI / 6.0f));
 
-    // TODO: UNIT TESTS FOR Vec2
+    // Vec2
+    auto vec2_1 = Vec2(1.0f, 2.0f);
+    assert(vec2_1.u == 1.0f && vec2_1.v == 2.0f);
+
+    // Vec2 opEquals
+    assert(Vec2(1.0f, 2.0f) == Vec2(1.0f, 2.0f));
+    assert(Vec2(1.0f, 2.0f) != Vec2(2.0f, 1.0f));
+    assert(Vec2(1.0f, 1.0f) == Vec2(1.0f + EPSILON/2, 1.0f + EPSILON/2));
+
+    // Vec2 opUnary "-"
+    auto vec2_neg = -vec2_1;
+    assert(vec2_neg == Vec2(-1.0f, -2.0f));
+
+    // Vec2 opBinary "+", "-"
+    auto vec2_2 = Vec2(3.0f, 4.0f);
+    assert(vec2_1 + vec2_2 == Vec2(4.0f, 6.0f));
+    assert(vec2_2 - vec2_1 == Vec2(2.0f, 2.0f));
+
+    // Vec2 opBinary "*", "/"
+    assert(vec2_1 * 2.0f == Vec2(2.0f, 4.0f));
+    assert(2.0f * vec2_1 == Vec2(2.0f, 4.0f));
+    assert(vec2_1 / 2.0f == Vec2(0.5f, 1.0f));
+
+    // Vec2 norm, normalized
+    auto vec2_3 = Vec2(3.0f, 4.0f);
+    assert(fequals(vec2_3.norm(), 5.0f));
+    auto vec2_norm = vec2_3.normalized();
+    assert(fequals(vec2_norm.u, 0.6f));
+    assert(fequals(vec2_norm.v, 0.8f));
+    assert(fequals(vec2_norm.norm(), 1.0f));
+
+    // Vec2 dot
+    assert(fequals(vec2_1.dot(vec2_2), 1.0f*3.0f + 2.0f*4.0f)); // 3 + 8 = 11
+    assert(fequals(vec2_1.dot(vec2_2), 11.0f));
+
+    // Vec2 distance
+    auto vec2_d1 = Vec2(0.0f, 0.0f);
+    auto vec2_d2 = Vec2(3.0f, 4.0f);
+    assert(fequals(vec2_d1.distance(vec2_d2), 5.0f));
+    assert(fequals(vec2_d1.distance(vec2_d1), 0.0f));
 
     // Vec3
     auto v1 = Vec3(1.0f, 2.0f, 3.0f);
@@ -731,4 +884,95 @@ unittest
 	assert(fequals(r_x.angleToRay(r_almost_x), 0.0f, 1e-6f));
 	auto r_almost_neg_x = Ray(o, Vec3(-1.0f, 1e-7f, 0.0f));
 	assert(fequals(r_x.angleToRay(r_almost_neg_x), PI, 1e-6f));
+
+    // RNG
+    RNG rng1 = RNG(12345);
+    uint first = rng1.next();
+    uint second = rng1.next();
+    assert(first != second);  // Should produce different values
+
+    // RNG with seed 0 should become 1
+    RNG rng2 = RNG(0);
+    assert(rng2.next() != 0);
+
+    // RNG nextFloat should be in [0, 1)
+    RNG rng3 = RNG(42);
+    foreach (_; 0 .. 100)
+    {
+        float f = rng3.nextFloat();
+        assert(f >= 0.0f && f < 1.0f);
+    }
+
+    // RNG nextFloatRange
+    RNG rng4 = RNG(99);
+    foreach (_; 0 .. 100)
+    {
+        float f = rng4.nextFloatRange(-5.0f, 5.0f);
+        assert(f >= -5.0f && f < 5.0f);
+    }
+
+    // RNG randomInUnitSphere should return vectors with length < 1
+    RNG rng5 = RNG(777);
+    foreach (_; 0 .. 50)
+    {
+        Vec3 p = rng5.randomInUnitSphere();
+        assert(p.dot(p) < 1.0f);
+    }
+
+    // RNG randomUnitVector should return normalized vectors
+    RNG rng6 = RNG(888);
+    foreach (_; 0 .. 50)
+    {
+        Vec3 p = rng6.randomUnitVector();
+        assert(fequals(p.norm(), 1.0f));
+    }
+
+    // RNG randomOnHemisphere should return vectors in correct hemisphere
+    RNG rng7 = RNG(999);
+    Vec3 testNormal = Vec3(0.0f, 1.0f, 0.0f);
+    foreach (_; 0 .. 50)
+    {
+        Vec3 p = rng7.randomOnHemisphere(testNormal);
+        assert(p.dot(testNormal) >= 0.0f);
+        assert(fequals(p.norm(), 1.0f));
+    }
+
+    // reflect
+    Vec3 incident = Vec3(1.0f, -1.0f, 0.0f).normalized();
+    Vec3 normal = Vec3(0.0f, 1.0f, 0.0f);
+    Vec3 reflected = reflect(incident, normal);
+    // Reflected ray should go up and right
+    assert(reflected.x > 0.0f);
+    assert(reflected.y > 0.0f);
+    assert(fequals(reflected.norm(), 1.0f));
+
+    // reflect straight down should go straight up
+    Vec3 down = Vec3(0.0f, -1.0f, 0.0f);
+    Vec3 up_normal = Vec3(0.0f, 1.0f, 0.0f);
+    Vec3 reflected_up = reflect(down, up_normal);
+    assert(fequals(reflected_up.x, 0.0f));
+    assert(fequals(reflected_up.y, 1.0f));
+    assert(fequals(reflected_up.z, 0.0f));
+
+    // refract - straight through (no bending when same medium)
+    Vec3 refracted;
+    Vec3 in_dir = Vec3(0.0f, -1.0f, 0.0f);
+    Vec3 surf_normal = Vec3(0.0f, 1.0f, 0.0f);
+    bool did_refract = refract(in_dir, surf_normal, 1.0f, refracted);
+    assert(did_refract);
+    assert(fequals(refracted.y, -1.0f));
+
+    // refract - total internal reflection case
+    Vec3 grazing = Vec3(0.9f, -0.1f, 0.0f).normalized();
+    Vec3 tir_refracted;
+    // High ratio simulates going from dense to less dense at steep angle
+    bool tir = refract(grazing, surf_normal, 10.0f, tir_refracted);
+    // Should fail (total internal reflection)
+    assert(!tir);
+
+    // refract - normal refraction
+    Vec3 angled_in = Vec3(0.0f, -1.0f, 0.0f);
+    Vec3 angled_refracted;
+    bool refracted_ok = refract(angled_in, surf_normal, 1.5f, angled_refracted);
+    assert(refracted_ok);
 }

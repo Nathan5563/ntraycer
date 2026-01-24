@@ -1,25 +1,39 @@
-// COMPLETE, ADD DOCS
+// COMPLETE
 /**
  * This module provides functionality for mutable strings. It is used to
  * convert the rendered image into a text-based file format.
  */
 module lib.core.mutstring;
 
-/// @struct Mutable string
+/// @struct MutString - A mutable string buffer with dynamic growth
 struct MutString
 {
     private char[] buf;
     private size_t length;
 
+    /// @func this - Creates a MutString from one or more string arguments
+    ///
+    /// @param args - variadic string arguments to initialize with
     this(string...)(const string args)
     {
         this.append(args);
     }
 
+    /// @func opIndex - Access a character by index
+    ///
+    /// @param idx - the index of the character to access
+    ///
+    /// @returns - the character at the given index
     char opIndex(size_t idx) const
     {
         return this.buf[idx];
     }
+
+    /// @func opEquals - Compare with another MutString for equality
+    ///
+    /// @param s - the MutString to compare with
+    ///
+    /// @returns - true if the strings are equal
     bool opEquals(const MutString s) const
     {
         if (this.length != s.size())
@@ -35,19 +49,36 @@ struct MutString
         }
         return true;
     }
+
+    /// @func opEquals - Compare with a string literal for equality
+    ///
+    /// @param s - the string to compare with
+    ///
+    /// @returns - true if the strings are equal
     bool opEquals(const string s) const
     {
         return this.toString() == s;
     }
 
+    /// @func size - Returns the current length of the string
+    ///
+    /// @returns - the number of characters in the string
     size_t size() const
     {
         return this.length;
     }
+
+    /// @func ptr - Returns a pointer to the internal character buffer
+    ///
+    /// @returns - pointer to the first character
     const(char*) ptr() const
     {
         return this.buf.ptr;
     }
+
+    /// @func append - Appends one or more strings to the buffer
+    ///
+    /// @param args - variadic string arguments to append
     void append(string...)(const string args)
     {
         foreach (s; args)
@@ -77,6 +108,10 @@ struct MutString
             this.length += s.length;
         }
     }
+
+    /// @func toString - Converts the MutString to an immutable string
+    ///
+    /// @returns - an immutable copy of the string content
     string toString() const
     {
         return (this.buf[0 .. this.length]).idup; 

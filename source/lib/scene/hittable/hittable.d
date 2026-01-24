@@ -53,3 +53,26 @@ interface Hittable
     /// @returns - true if the ray hit the object, false otherwise
     bool hit(Ray r, float timeMin, float timeMax, out HitInfo hitInfo) const;
 }
+
+unittest
+{
+    import lib.core.math : fequals;
+
+    // Test HitInfo setFaceNormal with front face hit
+    HitInfo hitInfo;
+    Ray rayTowardSurface = Ray(Vec3(0, 0, -5), Vec3(0, 0, 1));
+    Vec3 outwardNormal = Vec3(0, 0, -1);  // Normal pointing toward ray
+
+    hitInfo.setFaceNormal(rayTowardSurface, outwardNormal);
+    assert(hitInfo.frontFace == true);
+    assert(hitInfo.normal == outwardNormal);
+
+    // Test HitInfo setFaceNormal with back face hit
+    HitInfo hitInfo2;
+    Ray rayFromInside = Ray(Vec3(0, 0, 0), Vec3(0, 0, 1));
+    Vec3 outwardNormal2 = Vec3(0, 0, 1);  // Normal pointing same direction as ray
+
+    hitInfo2.setFaceNormal(rayFromInside, outwardNormal2);
+    assert(hitInfo2.frontFace == false);
+    assert(hitInfo2.normal == -outwardNormal2);
+}
