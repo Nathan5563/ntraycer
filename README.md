@@ -2,9 +2,7 @@
 
 A physically-based Monte Carlo path tracer written in pure D with zero external dependencies. This project implements a complete ray tracing pipeline from scratch, including all mathematical primitives, file I/O via Linux syscalls, and advanced rendering techniques.
 
-![Ray Tracing in One Weekend](demos/spheres.png)
-
-![Cornell Box Demo](demos/cornell_box.png)
+<img src="demos/spheres.png" width="400px"> <img src="demos/cornell_box.png" width="267px">
 
 ## Features
 
