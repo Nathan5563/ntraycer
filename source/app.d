@@ -106,7 +106,7 @@ void main()
 	Scene world = new Scene(camera, objects, background);
 
 	// Higher samples for better quality with area light
-	Renderer renderer = new Renderer(600, 600, 400, 20);
+	Renderer renderer = new Renderer(600, 600, 1000, 50);
 	renderer.render(world);
 
 	MutString image = renderer.film.save(ImageFormat.PPM);

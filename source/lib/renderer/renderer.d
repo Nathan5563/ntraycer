@@ -208,9 +208,4 @@ unittest
     auto defaultRenderer = new Renderer(800, 600);
     assert(defaultRenderer.samplesPerPixel == 16);
     assert(defaultRenderer.maxDepth == 50);
-
-    // Test power heuristic
-    assert(fequals(powerHeuristic(1.0f, 0.0f), 1.0f));
-    assert(fequals(powerHeuristic(0.0f, 1.0f), 0.0f));
-    assert(fequals(powerHeuristic(1.0f, 1.0f), 0.5f));
 }

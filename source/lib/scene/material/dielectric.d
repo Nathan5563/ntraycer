@@ -111,10 +111,10 @@ unittest
     bool scattered = glass.scatter(incomingRay, hitInfo, rng, result);
 
     assert(scattered == true);
-    // Glass has white attenuation (doesn't absorb light)
-    assert(fequals(result.attenuation.x, 1.0f));
-    assert(fequals(result.attenuation.y, 1.0f));
-    assert(fequals(result.attenuation.z, 1.0f));
+    // Glass has white weight (doesn't absorb light)
+    assert(fequals(result.weight.x, 1.0f));
+    assert(fequals(result.weight.y, 1.0f));
+    assert(fequals(result.weight.z, 1.0f));
 
     // Test Schlick's approximation at normal incidence
     float r0 = Dielectric.reflectance(1.0f, 1.5f);

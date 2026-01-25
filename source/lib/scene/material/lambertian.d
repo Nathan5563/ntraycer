@@ -98,9 +98,9 @@ unittest
     bool scattered = mat.scatter(incomingRay, hitInfo, rng, result);
 
     assert(scattered == true);
-    assert(fequals(result.attenuation.x, 0.5f));
-    assert(fequals(result.attenuation.y, 0.5f));
-    assert(fequals(result.attenuation.z, 0.5f));
+    assert(fequals(result.weight.x, 0.5f));
+    assert(fequals(result.weight.y, 0.5f));
+    assert(fequals(result.weight.z, 0.5f));
 
     // Scattered ray should originate from hit point
     assert(result.scattered.origin == hitInfo.point);

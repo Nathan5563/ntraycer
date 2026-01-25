@@ -86,5 +86,5 @@ unittest
     bool scattered = light.scatter(incomingRay, hitInfo, rng, result);
 
     assert(scattered == false);
-    assert(fequals(result.attenuation.x, 10.0f));
+    assert(fequals(result.weight.x, 10.0f));
 }
