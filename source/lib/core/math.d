@@ -239,6 +239,38 @@ float tan(float x)
 }
 
 pragma(inline, true)
+float sin(float x)
+@nogc @safe pure nothrow
+{
+    // Reduce to [-PI, PI]
+    int k = cast(int)(x / (2.0f * PI) + (x >= 0 ? 0.5f : -0.5f));
+    float y = x - k * 2.0f * PI;
+
+    // Taylor series approximation
+    const float y2 = y * y;
+    float result = y;
+    float term = y;
+
+    term *= -y2 / (2.0f * 3.0f);
+    result += term;
+    term *= -y2 / (4.0f * 5.0f);
+    result += term;
+    term *= -y2 / (6.0f * 7.0f);
+    result += term;
+    term *= -y2 / (8.0f * 9.0f);
+    result += term;
+
+    return result;
+}
+
+pragma(inline, true)
+float cos(float x)
+@nogc @safe pure nothrow
+{
+    return sin(x + PI / 2.0f);
+}
+
+pragma(inline, true)
 float acos(float num)
 @nogc pure nothrow
 {
@@ -385,6 +417,10 @@ struct Vec3
 	{
 		return this.x * v.x + this.y * v.y + this.z * v.z;
 	}
+	Vec3 mul(Vec3 v) const
+	{
+		return Vec3(this.x * v.x, this.y * v.y, this.z * v.z);
+	}
 	Vec3 cross(Vec3 v) const
 	{
 		return Vec3(
@@ -410,8 +446,6 @@ struct Vec3
 		return z;
 	}
 }
-
-// TODO: UNIT TESTS (for Vec2)
 
 struct RNG
 {

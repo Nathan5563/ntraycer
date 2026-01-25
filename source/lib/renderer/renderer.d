@@ -5,13 +5,15 @@
  */
 module lib.renderer.renderer;
 
-import lib.core.math : Vec2, Vec3, Ray, RNG, clamp, sqrt, max;
+import lib.core.math : Vec2, Vec3, Ray, RNG, clamp, sqrt, max, abs, PI;
 import lib.scene.scene : Scene;
-import lib.scene.hittable.hittable : HitInfo;
-import lib.scene.material.material : ScatterResult;
+import lib.scene.hittable.hittable : Hittable, HitInfo;
+import lib.scene.light : LightSample;
+import lib.scene.material.material : Material, ScatterResult;
+import lib.scene.material.emissive : Emissive;
 import lib.renderer.film : Film, Pixel;
 
-/// @class Renderer - Path tracing renderer for producing images from scenes
+/// @class Renderer - Path tracing renderer with Next Event Estimation
 class Renderer
 {
     /// @prop film - the output image buffer
@@ -70,39 +72,123 @@ class Renderer
         }
     }
 
-    /// @func rayColor - Traces a ray and returns its color contribution
+    /// @func rayColor - Traces a ray through the scene
     ///
     /// @param ray - the ray to trace
     /// @param scene - the scene to trace against
     /// @param depth - remaining recursion depth
-    /// @param rng - random number generator for stochastic effects
-    ///
-    /// @returns - the color contribution of this ray
+    /// @param rng - random number generator
     private Vec3 rayColor(Ray ray, ref const Scene scene, int depth, ref RNG rng) const
     {
-        if (depth <= 0)
-        {
-            return Vec3(0.0f, 0.0f, 0.0f);
-        }
+        Vec3 throughput = Vec3(1.0f, 1.0f, 1.0f);
+        Vec3 radiance = Vec3(0.0f, 0.0f, 0.0f);
+        Ray currentRay = ray;
+        bool lastBounceSpecular = true;
 
-        HitInfo hitInfo;
-        if (scene.hit(ray, 0.001f, float.infinity, hitInfo))
+        for (int bounce = 0; bounce < depth; bounce++)
         {
-            ScatterResult scatterResult;
-            if (hitInfo.material.scatter(ray, hitInfo, rng, scatterResult))
+            // Check if we hit the background
+            HitInfo hitInfo;
+            if (!scene.hit(currentRay, 0.001f, float.infinity, hitInfo))
             {
-                Vec3 scattered_color = rayColor(scatterResult.scattered, scene, depth - 1, rng);
-                return Vec3(
-                    scatterResult.attenuation.x * scattered_color.x,
-                    scatterResult.attenuation.y * scattered_color.y,
-                    scatterResult.attenuation.z * scattered_color.z
-                );
+                Vec3 bg = scene.background.sample(currentRay);
+                radiance = radiance + throughput.mul(bg);
+                break;
             }
-            // Material didn't scatter - return its attenuation as emission
-            return scatterResult.attenuation;
+
+            // Check if we hit a light
+            Emissive emissive = cast(Emissive) hitInfo.material;
+            if (emissive !is null)
+            {
+                // Add emission on first bounce or after specular bounces
+                if (bounce == 0 || lastBounceSpecular)
+                {
+                    radiance = radiance + throughput.mul(emissive.emit());
+                }
+                break;
+            }
+
+            Material mat = hitInfo.material;
+            Vec3 wo = (currentRay.direction * -1.0f).normalized();
+
+            // NEE with MIS for non-specular materials
+            if (scene.hasLights() && !mat.isSpecular())
+            {
+                LightSample lightSample;
+                if (scene.sampleLight(hitInfo.point, rng, lightSample))
+                {
+                    Vec3 toLight = lightSample.point - hitInfo.point;
+                    float dist = toLight.norm();
+                    Vec3 wi = toLight / dist;
+
+                    float cosTheta = hitInfo.normal.dot(wi);
+                    float cosLight = abs(lightSample.normal.dot(wi * -1.0f));
+
+                    if (cosTheta > 0.0f && cosLight > 0.0f)
+                    {
+                        // Shadow ray
+                        Ray shadowRay = Ray(hitInfo.point + hitInfo.normal * 0.001f, wi);
+                        HitInfo shadowHit;
+                        bool inShadow = scene.hit(shadowRay, 0.001f, dist - 0.001f, shadowHit);
+
+                        if (!inShadow)
+                        {
+                            // Convert area PDF to solid angle PDF
+                            float pLightOmega = lightSample.pdfArea * dist * dist / cosLight;
+
+                            // Get BSDF pdf for this direction
+                            float pBsdf = mat.pdf(wo, wi, hitInfo);
+
+                            // MIS weight using power heuristic
+                            float misWeight = powerHeuristic(pLightOmega, pBsdf);
+
+                            // BSDF evaluation
+                            Vec3 brdf = mat.eval(wo, wi, hitInfo);
+
+                            // Direct light contribution
+                            Vec3 directLight = lightSample.emission.mul(brdf) * cosTheta * misWeight / pLightOmega;
+                            radiance = radiance + throughput.mul(directLight);
+                        }
+                    }
+                }
+            }
+
+            // Sample BSDF for continuation
+            ScatterResult scatterResult;
+            if (!mat.scatter(currentRay, hitInfo, rng, scatterResult))
+            {
+                break;
+            }
+
+            // Continue path
+            throughput = throughput.mul(scatterResult.weight);
+            currentRay = scatterResult.scattered;
+            lastBounceSpecular = scatterResult.isSpecular;
+
+            // Russian roulette with clamped probability
+            if (bounce > 5)
+            {
+                float p = clamp(max(throughput.x, max(throughput.y, throughput.z)), 0.0f, 0.99f);
+                if (rng.nextFloat() > p)
+                    break;
+                throughput = throughput / p;
+            }
         }
 
-        return scene.background.sample(ray);
+        return radiance;
+    }
+
+    /// @func powerHeuristic - Computes the power heuristic MIS weight
+    ///
+    /// @param pdfA - first PDF
+    /// @param pdfB - second PDF
+    private float powerHeuristic(float pdfA, float pdfB) const
+    {
+        float a2 = pdfA * pdfA;
+        float b2 = pdfB * pdfB;
+        if (a2 + b2 < 1e-10f)
+            return 0.0f;
+        return a2 / (a2 + b2);
     }
 }
 
@@ -122,4 +208,9 @@ unittest
     auto defaultRenderer = new Renderer(800, 600);
     assert(defaultRenderer.samplesPerPixel == 16);
     assert(defaultRenderer.maxDepth == 50);
+
+    // Test power heuristic
+    assert(fequals(powerHeuristic(1.0f, 0.0f), 1.0f));
+    assert(fequals(powerHeuristic(0.0f, 1.0f), 0.0f));
+    assert(fequals(powerHeuristic(1.0f, 1.0f), 0.5f));
 }

@@ -37,11 +37,36 @@ class Metal : Material
             reflected = reflected + fuzz * rng.randomUnitVector();
         }
 
-        result.scattered = Ray(hitInfo.point, reflected);
-        result.attenuation = albedo;
+        Vec3 wi = reflected.normalized();
+        result.scattered = Ray(hitInfo.point, wi);
+        
+        // For specular: weight = albedo, pdf = infinity (represented as 1.0 for delta)
+        // The convention is: for delta BSDFs, weight = f/pdf is finite (albedo)
+        result.weight = albedo;
+        result.pdf = 1.0f;  // Placeholder for delta; actual pdf is infinite
+        result.isSpecular = (fuzz < 0.01f);
 
         // Only scatter if reflection is in the same hemisphere as normal
         return reflected.dot(hitInfo.normal) > 0;
+    }
+
+    /// @func eval - Metal is a delta BSDF, returns 0 for non-specular eval
+    override Vec3 eval(const Vec3 wo, const Vec3 wi, const HitInfo hitInfo) const
+    {
+        // Delta distribution - eval is 0 everywhere except the exact mirror direction
+        return Vec3(0, 0, 0);
+    }
+
+    /// @func pdf - Delta BSDF has 0 pdf for any finite direction
+    override float pdf(const Vec3 wo, const Vec3 wi, const HitInfo hitInfo) const
+    {
+        return 0.0f;
+    }
+
+    /// @func isSpecular - Metal is specular when fuzz is near zero
+    override bool isSpecular() const
+    {
+        return fuzz < 0.01f;
     }
 }
 

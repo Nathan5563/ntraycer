@@ -7,12 +7,14 @@ module lib.scene.hittable.sphere;
 
 import lib.accel.aabb : AABB;
 import lib.accel.bvh : Boundable;
-import lib.core.math : Vec3, Ray, sqrt;
+import lib.core.math : Vec3, Ray, RNG, sqrt, PI, sin, cos;
 import lib.scene.hittable.hittable : Hittable, HitInfo;
+import lib.scene.light : Light, LightSample;
 import lib.scene.material.material : Material;
+import lib.scene.material.emissive : Emissive;
 
 /// @class Sphere - A sphere defined by center point and radius
-class Sphere : Hittable, Boundable
+class Sphere : Hittable, Boundable, Light
 {
     private Vec3 center;
     private float radius;
@@ -75,6 +77,55 @@ class Sphere : Hittable, Boundable
     {
         Vec3 radiusVec = Vec3(radius, radius, radius);
         return AABB(center - radiusVec, center + radiusVec);
+    }
+
+    /// @func sampleLight - Samples a random point on the sphere for direct lighting
+    ///
+    /// @param hitPoint - the point being illuminated
+    /// @param rng - random number generator
+    LightSample sampleLight(Vec3 hitPoint, ref RNG rng) const
+    {
+        LightSample sample;
+
+        // Uniform sphere sampling
+        float u = rng.nextFloat();
+        float v = rng.nextFloat();
+        float theta = 2.0f * PI * u;
+        float phi = 1.0f - 2.0f * v;  // cos(phi)
+        float sinPhi = sqrt(1.0f - phi * phi);
+
+        Vec3 localDir = Vec3(sinPhi * cos(theta), sinPhi * sin(theta), phi);
+        sample.point = center + localDir * radius;
+        sample.normal = localDir;
+
+        // PDF is 1 / surface area (area measure)
+        float a = 4.0f * PI * radius * radius;
+        sample.pdfArea = 1.0f / a;
+        sample.area = a;
+
+        sample.emission = getEmission();
+        return sample;
+    }
+
+    /// @func getEmission - Returns the emission if material is emissive
+    Vec3 getEmission() const
+    {
+        Emissive emissive = cast(Emissive) cast(Material) material;
+        if (emissive !is null)
+            return emissive.emit();
+        return Vec3(0, 0, 0);
+    }
+
+    /// @func getArea - Returns the surface area of the sphere
+    float getArea() const
+    {
+        return 4.0f * PI * radius * radius;
+    }
+
+    /// @func getPdfArea - Returns the area PDF (1/area for uniform sampling)
+    float getPdfArea() const
+    {
+        return 1.0f / getArea();
     }
 }
 

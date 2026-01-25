@@ -7,9 +7,11 @@ module lib.scene.hittable.mesh;
 
 import lib.accel.aabb : AABB;
 import lib.accel.bvh : Boundable;
-import lib.core.math : Vec3, Ray, abs, min, max, EPSILON;
+import lib.core.math : Vec3, Ray, RNG, abs, min, max, EPSILON;
 import lib.scene.hittable.hittable : Hittable, HitInfo;
+import lib.scene.light : Light, LightSample;
 import lib.scene.material.material : Material;
+import lib.scene.material.emissive : Emissive;
 
 /// @class Triangle - A single triangle primitive
 class Triangle : Hittable, Boundable
@@ -93,10 +95,13 @@ class Triangle : Hittable, Boundable
 }
 
 /// @class Quad - A quadrilateral (two triangles) for walls/floors
-class Quad : Hittable, Boundable
+class Quad : Hittable, Boundable, Light
 {
     private Triangle tri1;
     private Triangle tri2;
+    private Vec3 v0, v1, v2, v3;
+    private Vec3 normal;
+    private Material material;
 
     /// @func this - Creates a quad from four vertices
     ///
@@ -104,6 +109,17 @@ class Quad : Hittable, Boundable
     /// @param material - the material for the quad
     this(Vec3 v0, Vec3 v1, Vec3 v2, Vec3 v3, Material material)
     {
+        this.v0 = v0;
+        this.v1 = v1;
+        this.v2 = v2;
+        this.v3 = v3;
+        this.material = material;
+
+        // Compute normal from edges
+        Vec3 edge1 = v1 - v0;
+        Vec3 edge2 = v3 - v0;
+        this.normal = edge1.cross(edge2).normalized();
+
         // Split quad into two triangles
         this.tri1 = new Triangle(v0, v1, v2, material);
         this.tri2 = new Triangle(v0, v2, v3, material);
@@ -121,6 +137,76 @@ class Quad : Hittable, Boundable
     AABB boundingBox() const
     {
         return tri1.boundingBox().merge(tri2.boundingBox());
+    }
+
+    /// @func sampleLight - Samples a random point on the quad for direct lighting
+    ///
+    /// @param hitPoint - the point being illuminated
+    /// @param rng - random number generator
+    LightSample sampleLight(Vec3 hitPoint, ref RNG rng) const
+    {
+        LightSample sample;
+
+        // Sample uniformly on the quad using barycentric interpolation
+        float u = rng.nextFloat();
+        float v = rng.nextFloat();
+
+        // Bilinear interpolation on quad
+        Vec3 p0 = v0 + (v1 - v0) * u;
+        Vec3 p1 = v3 + (v2 - v3) * u;
+        sample.point = p0 + (p1 - p0) * v;
+        sample.normal = normal;
+
+        // Compute area for PDF (area measure)
+        float a = area();
+        sample.pdfArea = 1.0f / a;
+        sample.area = a;
+
+        // Get emission from material
+        sample.emission = getEmission();
+
+        return sample;
+    }
+
+    /// @func getEmission - Returns the emission if material is emissive
+    Vec3 getEmission() const
+    {
+        Emissive emissive = cast(Emissive) cast(Material) material;
+        if (emissive !is null)
+            return emissive.emit();
+        return Vec3(0, 0, 0);
+    }
+
+    /// @func getArea - Returns the surface area of the quad
+    float getArea() const
+    {
+        return area();
+    }
+
+    /// @func getPdfArea - Returns the area PDF (1/area for uniform sampling)
+    float getPdfArea() const
+    {
+        return 1.0f / area();
+    }
+
+    /// @func isEmissive - Returns true if this quad has an emissive material
+    bool isEmissive() const
+    {
+        return (cast(Emissive) cast(Material) material) !is null;
+    }
+
+    /// @func area - Returns the area of the quad
+    float area() const
+    {
+        Vec3 edge1 = v1 - v0;
+        Vec3 edge2 = v3 - v0;
+        return edge1.cross(edge2).norm();
+    }
+
+    /// @func getNormal - Returns the quad normal
+    Vec3 getNormal() const
+    {
+        return normal;
     }
 }
 

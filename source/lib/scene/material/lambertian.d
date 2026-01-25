@@ -5,7 +5,7 @@
  */
 module lib.scene.material.lambertian;
 
-import lib.core.math : Vec3, Ray, RNG;
+import lib.core.math : Vec3, Ray, RNG, PI, max, abs;
 import lib.scene.material.material : Material, ScatterResult;
 import lib.scene.hittable.hittable : HitInfo;
 
@@ -22,9 +22,10 @@ class Lambertian : Material
         this.albedo = albedo;
     }
 
-    /// @func scatter - Scatters the ray in a random direction around the normal
+    /// @func scatter - Scatters the ray with cosine-weighted hemisphere sampling
     override bool scatter(const Ray ray, const HitInfo hitInfo, ref RNG rng, out ScatterResult result) const
     {
+        // Cosine-weighted hemisphere sampling: n + randomUnitVector
         Vec3 scatterDirection = hitInfo.normal + rng.randomUnitVector();
 
         // Catch degenerate scatter direction
@@ -36,9 +37,44 @@ class Lambertian : Material
             scatterDirection = hitInfo.normal;
         }
 
-        result.scattered = Ray(hitInfo.point, scatterDirection);
-        result.attenuation = albedo;
+        Vec3 wi = scatterDirection.normalized();
+        float cosTheta = abs(hitInfo.normal.dot(wi));
+
+        // PDF for cosine-weighted sampling: cos(theta) / PI
+        result.pdf = cosTheta / PI;
+        if (result.pdf < 1e-8f)
+            result.pdf = 1e-8f;
+
+        // BRDF: albedo / PI
+        // Weight = f * cos / pdf = (albedo/PI) * cos / (cos/PI) = albedo
+        result.weight = albedo;
+        result.scattered = Ray(hitInfo.point, wi);
+        result.isSpecular = false;
         return true;
+    }
+
+    /// @func eval - Evaluates the Lambertian BRDF (albedo / PI)
+    override Vec3 eval(const Vec3 wo, const Vec3 wi, const HitInfo hitInfo) const
+    {
+        float cosTheta = hitInfo.normal.dot(wi);
+        if (cosTheta <= 0.0f)
+            return Vec3(0, 0, 0);
+        return albedo / PI;
+    }
+
+    /// @func pdf - Returns the PDF for cosine-weighted hemisphere sampling
+    override float pdf(const Vec3 wo, const Vec3 wi, const HitInfo hitInfo) const
+    {
+        float cosTheta = hitInfo.normal.dot(wi);
+        if (cosTheta <= 0.0f)
+            return 0.0f;
+        return cosTheta / PI;
+    }
+
+    /// @func isSpecular - Lambertian is not specular
+    override bool isSpecular() const
+    {
+        return false;
     }
 }
 

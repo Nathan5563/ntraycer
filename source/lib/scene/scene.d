@@ -12,6 +12,7 @@ import lib.core.math : Vec3, Ray, RNG;
 import lib.scene.camera.camera : Camera;
 import lib.scene.hittable.hittable : Hittable, HitInfo;
 import lib.scene.background : Background, skyBackground;
+import lib.scene.light : Light, LightSample;
 
 /// @class Scene - Container for all renderable objects, camera, and background
 class Scene : Hittable
@@ -22,6 +23,7 @@ class Scene : Hittable
     Background background;
     private Hittable[] objects;
     private BVHAccelerator bvh;
+    private Light[] lights;
 
     /// @func this - Creates an empty scene with default sky background
     this()
@@ -30,6 +32,7 @@ class Scene : Hittable
         this.background = skyBackground();
         this.objects = [];
         this.bvh = null;
+        this.lights = [];
     }
 
     /// @func this - Creates a scene with camera and objects, default sky background
@@ -42,6 +45,7 @@ class Scene : Hittable
         this.background = skyBackground();
         this.objects = objects;
         this.bvh = new BVHAccelerator(objects);
+        this.lights = findLights(objects);
     }
 
     /// @func this - Creates a scene with camera, objects, and custom background
@@ -55,6 +59,47 @@ class Scene : Hittable
         this.background = background;
         this.objects = objects;
         this.bvh = new BVHAccelerator(objects);
+        this.lights = findLights(objects);
+    }
+
+    /// @func findLights - Finds all objects implementing Light interface
+    private static Light[] findLights(Hittable[] objects)
+    {
+        Light[] result;
+        foreach (obj; objects)
+        {
+            Light light = cast(Light) obj;
+            if (light !is null && light.getEmission().norm() > 0)
+                result ~= light;
+        }
+        return result;
+    }
+
+    /// @func hasLights - Returns true if scene has any light sources
+    bool hasLights() const
+    {
+        return lights.length > 0;
+    }
+
+    /// @func sampleLight - Samples a random light and point on it
+    ///
+    /// @param hitPoint - the point being illuminated
+    /// @param rng - random number generator
+    /// @param lightSample - output light sample
+    bool sampleLight(Vec3 hitPoint, ref RNG rng, out LightSample lightSample) const
+    {
+        if (lights.length == 0)
+            return false;
+
+        // Randomly select a light
+        size_t idx = cast(size_t)(rng.nextFloat() * lights.length);
+        if (idx >= lights.length)
+            idx = lights.length - 1;
+
+        lightSample = lights[idx].sampleLight(hitPoint, rng);
+        // Adjust pdfArea for light selection probability
+        lightSample.pdfArea /= cast(float) lights.length;
+        return true;
     }
 
     /// @func hit - Tests a ray against BVH-accelerated objects, returning the closest hit

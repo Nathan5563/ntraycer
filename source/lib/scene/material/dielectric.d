@@ -26,7 +26,10 @@ class Dielectric : Material
     /// @func scatter - Refracts or reflects the ray based on angle and material properties
     override bool scatter(const Ray ray, const HitInfo hitInfo, ref RNG rng, out ScatterResult result) const
     {
-        result.attenuation = Vec3(1.0f, 1.0f, 1.0f);
+        // Glass doesn't absorb, weight = 1
+        result.weight = Vec3(1.0f, 1.0f, 1.0f);
+        result.pdf = 1.0f;  // Delta BSDF placeholder
+        result.isSpecular = true;
 
         float refractionRatio = hitInfo.frontFace ? (1.0f / refIdx) : refIdx;
 
@@ -49,7 +52,26 @@ class Dielectric : Material
             direction = refracted;
         }
 
-        result.scattered = Ray(hitInfo.point, direction);
+        result.scattered = Ray(hitInfo.point, direction.normalized());
+        return true;
+    }
+
+    /// @func eval - Dielectric is a delta BSDF, returns 0 for non-specular eval
+    override Vec3 eval(const Vec3 wo, const Vec3 wi, const HitInfo hitInfo) const
+    {
+        // Delta distribution - eval is 0 everywhere except exact refract/reflect direction
+        return Vec3(0, 0, 0);
+    }
+
+    /// @func pdf - Delta BSDF has 0 pdf for any finite direction
+    override float pdf(const Vec3 wo, const Vec3 wi, const HitInfo hitInfo) const
+    {
+        return 0.0f;
+    }
+
+    /// @func isSpecular - Dielectric is always specular
+    override bool isSpecular() const
+    {
         return true;
     }
 
