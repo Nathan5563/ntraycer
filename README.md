@@ -16,51 +16,85 @@ A physically-based Monte Carlo path tracer written in pure D with zero external 
 - **BVH Acceleration** for fast ray-scene intersection
 - **Physically-based Materials**: Lambertian, Metal, Dielectric, Emissive
 
+## Build System
+
+The project uses [DUB](https://dub.pm/) with the LDC2 compiler for optimized builds.
+
+### Prerequisites
+
+- **LDC2** (LLVM-based D compiler for faster binary)
+- **DUB** (D package manager)
+- **Linux x86-64** (required for syscall-based I/O)
+
+### Building
+
+```bash
+# Release build
+./build/build.sh
+
+# Build and run
+./build/run.sh
+
+# Run unit tests
+./build/test.sh
+
+# Clean artifacts
+./build/clean.sh
+```
+
+Or manually with DUB:
+
+```bash
+dub build --compiler=ldc2 --build=release && ./ntraycer
+```
+
+The rendered image is written to `image.ppm` in the current directory.
+
 ## Architecture
 
 ### Project Structure
 
 ```
 ntraycer/
-├── dub.sdl                      # D build configuration
+├── dub.sdl                              # D build configuration
 ├── build/
-│   ├── build.sh                 # Release build script
-│   ├── run.sh                   # Build and execute
-│   ├── test.sh                  # Run unit tests
-│   └── clean.sh                 # Clean build artifacts
+│   ├── build.sh                         # Release build script
+│   ├── run.sh                           # Build and execute
+│   ├── test.sh                          # Run unit tests
+│   └── clean.sh                         # Clean build artifacts
 ├── demos/
-│   ├── cornell_box.png          # Cornell Box scene
-│   └── spheres.png              # Ray Tracing in One Weekend scene
+│   ├── cornell_box.png                  # Cornell Box scene
+│   └── spheres.png                      # Ray Tracing in One Weekend scene
 └── source/
-    ├── app.d                    # Main entry point & scene setup
+    ├── app.d                            # Main entry point & scene setup
     └── lib/
         ├── core/
-        │   ├── math.d           # Vec2, Vec3, Ray, RNG, math functions
-        │   ├── file.d           # Linux syscall wrappers (open/write/close)
-        │   └── mutstring.d      # Mutable string buffer
+        │   ├── math.d                   # Vec2, Vec3, Ray, RNG, math functions
+        │   ├── file.d                   # Linux syscall wrappers (open/write/close)
+        │   └── mutstring.d              # Mutable string buffer
         ├── accel/
-        │   ├── aabb.d           # Axis-Aligned Bounding Box
-        │   └── bvh.d            # Bounding Volume Hierarchy
+        │   ├── aabb.d                   # Axis-Aligned Bounding Box
+        │   └── bvh.d                    # Bounding Volume Hierarchy
         ├── renderer/
-        │   ├── renderer.d       # Path tracing renderer with NEE/MIS
-        │   └── film.d           # Image buffer and output
+        │   ├── renderer.d               # Path tracing renderer with NEE/MIS
+        │   └── film.d                   # Image buffer and output
         └── scene/
-            ├── scene.d          # Scene container with optional BVH
-            ├── background.d     # Environment backgrounds
-            ├── light.d          # Light sampling interface
+            ├── scene.d                  # Scene container with optional BVH
+            ├── background.d             # Environment backgrounds
+            ├── light.d                  # Light sampling interface
             ├── camera/
-            │   ├── camera.d     # Camera interface
-            │   └── pinhole.d    # Perspective pinhole camera
+            │   ├── camera.d             # Camera interface
+            │   └── pinhole.d            # Perspective pinhole camera
             ├── hittable/
-            │   ├── hittable.d   # Ray intersection interface
-            │   ├── sphere.d     # Sphere primitive
-            │   └── mesh.d       # Triangle and Quad primitives
+            │   ├── hittable.d           # Ray intersection interface
+            │   ├── sphere.d             # Sphere primitive
+            │   └── mesh.d               # Triangle and Quad primitives
             └── material/
-                ├── material.d   # Material interface with BSDF
-                ├── lambertian.d # Diffuse material
-                ├── metal.d      # Reflective material
-                ├── dielectric.d # Refractive material
-                └── emissive.d   # Light source material
+                ├── material.d           # Material interface with BSDF
+                ├── lambertian.d         # Diffuse material
+                ├── metal.d              # Reflective material
+                ├── dielectric.d         # Refractive material
+                └── emissive.d           # Light source material
 ```
 
 This project deliberately avoids all external dependencies, including D's standard library (`std`). Everything is implemented from scratch as a learning exercise.
@@ -206,40 +240,6 @@ interface Light
 ```
 
 Both `Sphere` and `Quad` implement this interface when assigned an `Emissive` material.
-
-## Build System
-
-The project uses [DUB](https://dub.pm/) with the LDC2 compiler for optimized builds.
-
-### Prerequisites
-
-- **LDC2** (LLVM-based D compiler for faster binary)
-- **DUB** (D package manager)
-- **Linux x86-64** (required for syscall-based I/O)
-
-### Building
-
-```bash
-# Release build
-./build/build.sh
-
-# Build and run
-./build/run.sh
-
-# Run unit tests
-./build/test.sh
-
-# Clean artifacts
-./build/clean.sh
-```
-
-Or manually with DUB:
-
-```bash
-dub build --compiler=ldc2 --build=release && ./ntraycer
-```
-
-The rendered image is written to `image.ppm` in the current directory.
 
 ## License
 
