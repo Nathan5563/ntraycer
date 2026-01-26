@@ -3,10 +3,10 @@
  * This module defines the Material interface and ScatterResult struct used
  * for physically-based material interactions in the ray tracer.
  */
-module lib.scene.material.material;
+module cpu.scene.material.material;
 
-import lib.core.math : Vec3, Ray, RNG;
-import lib.scene.hittable.hittable : HitInfo;
+import cpu.core.math : Vec3, Ray, RNG;
+import cpu.scene.hittable.hittable : HitInfo;
 
 /// @struct ScatterResult - Contains the result of a material scatter operation
 struct ScatterResult

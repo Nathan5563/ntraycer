@@ -3,9 +3,9 @@
  * This module provides an Axis-Aligned Bounding Box (AABB) implementation
  * for use in spatial acceleration structures like BVH.
  */
-module lib.accel.aabb;
+module cpu.accel.aabb;
 
-import lib.core.math : Vec3, Ray, min, max;
+import cpu.core.math : Vec3, Ray, min, max;
 
 /// @struct AABB - Axis-Aligned Bounding Box for spatial acceleration
 struct AABB
@@ -167,7 +167,7 @@ struct AABB
 
 unittest
 {
-    import lib.core.math : fequals;
+    import cpu.core.math : fequals;
 
     // Test AABB construction
     AABB box = AABB(Vec3(-1, -2, -3), Vec3(1, 2, 3));

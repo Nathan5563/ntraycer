@@ -3,12 +3,12 @@
  * This module implements the Dielectric (glass) material which
  * refracts or reflects light based on Snell's law and Fresnel equations.
  */
-module lib.scene.material.dielectric;
+module cpu.scene.material.dielectric;
 
-import lib.scene.material.material : Material, ScatterResult;
-import lib.core.math : Vec3, Ray, RNG, sqrt;
-import lib.scene.hittable.hittable : HitInfo;
-import lib.core.math : refract, reflect;
+import cpu.scene.material.material : Material, ScatterResult;
+import cpu.core.math : Vec3, Ray, RNG, sqrt;
+import cpu.scene.hittable.hittable : HitInfo;
+import cpu.core.math : refract, reflect;
 
 /// @class Dielectric - A transparent material like glass or water
 class Dielectric : Material
@@ -75,6 +75,12 @@ class Dielectric : Material
         return true;
     }
 
+    /// @func getIOR - Returns the index of refraction (for GPU export)
+    float getIOR() const
+    {
+        return refIdx;
+    }
+
     /// @func reflectance - Schlick's approximation for Fresnel reflectance
     private static float reflectance(float cosine, float refIdx)
     {
@@ -93,7 +99,7 @@ class Dielectric : Material
 
 unittest
 {
-    import lib.core.math : fequals;
+    import cpu.core.math : fequals;
 
     // Test Dielectric creation
     auto glass = new Dielectric(1.5f);

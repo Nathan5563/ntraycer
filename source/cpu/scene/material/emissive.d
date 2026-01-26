@@ -3,11 +3,11 @@
  * This module implements the Emissive material which emits light.
  * Used for area lights.
  */
-module lib.scene.material.emissive;
+module cpu.scene.material.emissive;
 
-import lib.scene.material.material : Material, ScatterResult;
-import lib.core.math : Vec3, Ray, RNG;
-import lib.scene.hittable.hittable : HitInfo;
+import cpu.scene.material.material : Material, ScatterResult;
+import cpu.core.math : Vec3, Ray, RNG;
+import cpu.scene.hittable.hittable : HitInfo;
 
 /// @class Emissive - A light-emitting material
 class Emissive : Material
@@ -59,11 +59,23 @@ class Emissive : Material
     {
         return emitColor * intensity;
     }
+
+    /// @func getEmitColor - Returns the emission color (for GPU export)
+    Vec3 getEmitColor() const
+    {
+        return emitColor;
+    }
+
+    /// @func getIntensity - Returns the intensity multiplier (for GPU export)
+    float getIntensity() const
+    {
+        return intensity;
+    }
 }
 
 unittest
 {
-    import lib.core.math : fequals;
+    import cpu.core.math : fequals;
 
     // Test Emissive creation
     auto light = new Emissive(Vec3(1, 1, 1), 10.0f);

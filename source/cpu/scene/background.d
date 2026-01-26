@@ -3,9 +3,9 @@
  * This module provides background/environment implementations for the scene.
  * Backgrounds determine the color returned when a ray doesn't hit any objects.
  */
-module lib.scene.background;
+module cpu.scene.background;
 
-import lib.core.math : Vec3, Ray;
+import cpu.core.math : Vec3, Ray;
 
 /// @interface Background - Interface for scene backgrounds/environments
 interface Background
@@ -32,6 +32,12 @@ class SolidBackground : Background
     }
 
     override Vec3 sample(const Ray ray) const
+    {
+        return color;
+    }
+
+    /// @func getColor - Returns the background color (for GPU export)
+    Vec3 getColor() const
     {
         return color;
     }
@@ -71,7 +77,7 @@ GradientBackground skyBackground()
 
 unittest
 {
-    import lib.core.math : fequals;
+    import cpu.core.math : fequals;
 
     // Test SolidBackground
     auto solid = new SolidBackground(Vec3(0.5f, 0.5f, 0.5f));

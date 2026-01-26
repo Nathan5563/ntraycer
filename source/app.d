@@ -1,20 +1,20 @@
-module app;
+module source.app;
 
-import lib.core.file : sys_open, sys_write, sys_close, FileFlags, FilePermissions;
-import lib.core.math : Vec3;
-import lib.core.mutstring : MutString;
-import lib.scene.camera.pinhole : PinholeCamera;
-import lib.scene.hittable.hittable : Hittable;
-import lib.scene.hittable.sphere : Sphere;
-import lib.scene.hittable.mesh : Quad;
-import lib.scene.scene : Scene;
-import lib.scene.background : SolidBackground;
-import lib.scene.material.lambertian : Lambertian;
-import lib.scene.material.dielectric : Dielectric;
-import lib.scene.material.metal : Metal;
-import lib.scene.material.emissive : Emissive;
-import lib.renderer.renderer : Renderer;
-import lib.renderer.film : Film, ImageFormat;
+import cpu.core.file : sys_open, sys_write, sys_close, FileFlags, FilePermissions;
+import cpu.core.math : Vec3;
+import cpu.core.mutstring : MutString;
+import cpu.scene.camera.pinhole : PinholeCamera;
+import cpu.scene.hittable.hittable : Hittable;
+import cpu.scene.hittable.sphere : Sphere;
+import cpu.scene.hittable.mesh : Quad;
+import cpu.scene.scene : Scene;
+import cpu.scene.background : SolidBackground;
+import cpu.scene.material.lambertian : Lambertian;
+import cpu.scene.material.dielectric : Dielectric;
+import cpu.scene.material.metal : Metal;
+import cpu.scene.material.emissive : Emissive;
+import cpu.renderer.renderer : Renderer;
+import cpu.renderer.film : Film, ImageFormat;
 
 void main()
 {
@@ -106,7 +106,7 @@ void main()
 	Scene world = new Scene(camera, objects, background);
 
 	// Higher samples for better quality with area light
-	Renderer renderer = new Renderer(600, 600, 1000, 50);
+	Renderer renderer = new Renderer(600, 600, 100, 20);
 	renderer.render(world);
 
 	MutString image = renderer.film.save(ImageFormat.PPM);

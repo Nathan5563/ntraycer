@@ -3,10 +3,10 @@
  * This module implements the PinholeCamera, a simple perspective camera
  * without depth of field effects. It's the standard camera for ray tracing.
  */
-module lib.scene.camera.pinhole;
+module cpu.scene.camera.pinhole;
 
-import lib.core.math : Vec2, Vec3, Ray, degToRad, tan, clamp;
-import lib.scene.camera.camera : Camera;
+import cpu.core.math : Vec2, Vec3, Ray, degToRad, tan, clamp;
+import cpu.scene.camera.camera : Camera;
 
 /// @class PinholeCamera - A perspective camera with no depth of field
 class PinholeCamera : Camera
@@ -59,11 +59,29 @@ class PinholeCamera : Camera
                          origin;
         return Ray(origin, direction);
     }
+
+    /// @func getLowerLeft - Returns the lower-left corner of the viewport (for GPU export)
+    Vec3 getLowerLeft() const
+    {
+        return lowerLeft;
+    }
+
+    /// @func getHorizontal - Returns the horizontal viewport extent (for GPU export)
+    Vec3 getHorizontal() const
+    {
+        return horizontal;
+    }
+
+    /// @func getVertical - Returns the vertical viewport extent (for GPU export)
+    Vec3 getVertical() const
+    {
+        return vertical;
+    }
 }
 
 unittest
 {
-    import lib.core.math : fequals;
+    import cpu.core.math : fequals;
 
     // Create a camera looking down -Z axis
     auto camera = new PinholeCamera(

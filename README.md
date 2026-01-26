@@ -1,6 +1,6 @@
 # ntraycer
 
-A physically-based Monte Carlo path tracer written in pure D with zero external dependencies. This project implements a complete ray tracing pipeline from scratch, including all mathematical primitives, file I/O via Linux syscalls, and advanced rendering techniques.
+A physically-based Monte Carlo path tracer written in pure D with zero external dependencies. This project implements a complete ray tracing pipeline from scratch, including all mathematical primitives, native file I/O (Linux syscalls, Windows API), and advanced rendering techniques.
 
 <img src="demos/spheres.png" width="400px"> <img src="demos/cornell_box.png" width="267px">
 
@@ -8,7 +8,7 @@ A physically-based Monte Carlo path tracer written in pure D with zero external 
 
 - **Zero External Dependencies**: Every component is implemented from first principles
   - Custom math library (vectors, rays, trigonometry, RNG)
-  - Direct Linux syscall interface for file I/O
+  - Native OS file I/O (Linux syscalls on Linux, kernel32.dll on Windows)
   - Custom mutable string implementation for PPM image output
 - **Monte Carlo Path Tracing** with unbiased global illumination
   - Next Event Estimation (NEE) for efficient direct lighting
@@ -24,9 +24,11 @@ The project uses [DUB](https://dub.pm/) with the LDC2 compiler for optimized bui
 
 - **LDC2** (LLVM-based D compiler for faster binary)
 - **DUB** (D package manager)
-- **Linux x86-64** (required for syscall-based I/O)
+- **Linux x86-64** or **Windows x86-64**
 
 ### Building
+
+There are a set of bash scripts for use on Linux:
 
 ```bash
 # Release build
@@ -42,10 +44,11 @@ The project uses [DUB](https://dub.pm/) with the LDC2 compiler for optimized bui
 ./build/clean.sh
 ```
 
-Or manually with DUB:
+Or manually with DUB, which works on both Linux and Windows:
 
 ```bash
-dub build --compiler=ldc2 --build=release && ./ntraycer
+dub build --compiler=ldc2 --build=release && ./ntraycer   # Linux
+dub build --compiler=ldc2 --build=release && ntraycer.exe # Windows
 ```
 
 The rendered image is written to `image.ppm` in the current directory.

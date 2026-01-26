@@ -3,11 +3,11 @@
  * This module provides a Bounding Volume Hierarchy (BVH) implementation
  * for accelerating ray-scene intersection tests.
  */
-module lib.accel.bvh;
+module cpu.accel.bvh;
 
-import lib.accel.aabb : AABB;
-import lib.core.math : Vec3, Ray;
-import lib.scene.hittable.hittable : Hittable, HitInfo;
+import cpu.accel.aabb : AABB;
+import cpu.core.math : Vec3, Ray;
+import cpu.scene.hittable.hittable : Hittable, HitInfo;
 
 /// @interface Boundable - Interface for objects that can provide a bounding box
 interface Boundable
@@ -115,6 +115,30 @@ class BVHNode : Hittable
         return box;
     }
 
+    /// @func getLeft - Returns the left child node (for GPU export)
+    BVHNode getLeft() const
+    {
+        return cast(BVHNode) left;
+    }
+
+    /// @func getRight - Returns the right child node (for GPU export)
+    BVHNode getRight() const
+    {
+        return cast(BVHNode) right;
+    }
+
+    /// @func getPrimitive - Returns the primitive if this is a leaf node (for GPU export)
+    Hittable getPrimitive() const
+    {
+        return cast(Hittable) primitive;
+    }
+
+    /// @func isLeaf - Returns true if this is a leaf node
+    bool isLeaf() const
+    {
+        return primitive !is null;
+    }
+
     /// @func hit - Tests if a ray hits any object in this BVH subtree
     ///
     /// @param r - the ray to test
@@ -173,11 +197,17 @@ class BVHAccelerator : Hittable
             return false;
         return root.hit(r, timeMin, timeMax, hitInfo);
     }
+
+    /// @func getRoot - Returns the root BVH node (for GPU export)
+    BVHNode getRoot() const
+    {
+        return cast(BVHNode) root;
+    }
 }
 
 unittest
 {
-    import lib.core.math : fequals;
+    import cpu.core.math : fequals;
 
     // Test empty BVH
     BVHAccelerator emptyBVH = new BVHAccelerator([]);

@@ -3,15 +3,15 @@
  * This module implements triangle and quad primitives for rendering
  * planar geometry like walls, floors, and complex meshes.
  */
-module lib.scene.hittable.mesh;
+module cpu.scene.hittable.mesh;
 
-import lib.accel.aabb : AABB;
-import lib.accel.bvh : Boundable;
-import lib.core.math : Vec3, Ray, RNG, abs, min, max, EPSILON;
-import lib.scene.hittable.hittable : Hittable, HitInfo;
-import lib.scene.light : Light, LightSample;
-import lib.scene.material.material : Material;
-import lib.scene.material.emissive : Emissive;
+import cpu.accel.aabb : AABB;
+import cpu.accel.bvh : Boundable;
+import cpu.core.math : Vec3, Ray, RNG, abs, min, max, EPSILON;
+import cpu.scene.hittable.hittable : Hittable, HitInfo;
+import cpu.scene.light : Light, LightSample;
+import cpu.scene.material.material : Material;
+import cpu.scene.material.emissive : Emissive;
 
 /// @class Triangle - A single triangle primitive
 class Triangle : Hittable, Boundable
@@ -91,6 +91,20 @@ class Triangle : Hittable, Boundable
                 max(v0.z, max(v1.z, v2.z)) + EPSILON
             )
         );
+    }
+
+    /// @func getVertices - Returns the triangle vertices (for GPU export)
+    void getVertices(out Vec3 ov0, out Vec3 ov1, out Vec3 ov2) const
+    {
+        ov0 = v0;
+        ov1 = v1;
+        ov2 = v2;
+    }
+
+    /// @func getMaterial - Returns the material (for GPU export)
+    Material getMaterial() const
+    {
+        return cast(Material) material;
     }
 }
 
@@ -208,12 +222,27 @@ class Quad : Hittable, Boundable, Light
     {
         return normal;
     }
+
+    /// @func getVertices - Returns the quad vertices (for GPU export)
+    void getVertices(out Vec3 ov0, out Vec3 ov1, out Vec3 ov2, out Vec3 ov3) const
+    {
+        ov0 = v0;
+        ov1 = v1;
+        ov2 = v2;
+        ov3 = v3;
+    }
+
+    /// @func getMaterial - Returns the material (for GPU export)
+    Material getMaterial() const
+    {
+        return cast(Material) material;
+    }
 }
 
 unittest
 {
-    import lib.core.math : fequals;
-    import lib.scene.material.lambertian : Lambertian;
+    import cpu.core.math : fequals;
+    import cpu.scene.material.lambertian : Lambertian;
 
     // Test Triangle intersection
     auto mat = new Lambertian(Vec3(1, 0, 0));

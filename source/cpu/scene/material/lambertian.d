@@ -3,11 +3,11 @@
  * This module implements the Lambertian (diffuse) material which scatters
  * light uniformly in all directions from the surface normal.
  */
-module lib.scene.material.lambertian;
+module cpu.scene.material.lambertian;
 
-import lib.core.math : Vec3, Ray, RNG, PI, max, abs;
-import lib.scene.material.material : Material, ScatterResult;
-import lib.scene.hittable.hittable : HitInfo;
+import cpu.core.math : Vec3, Ray, RNG, PI, max, abs;
+import cpu.scene.material.material : Material, ScatterResult;
+import cpu.scene.hittable.hittable : HitInfo;
 
 /// @class Lambertian - A diffuse material that scatters light randomly
 class Lambertian : Material
@@ -76,11 +76,17 @@ class Lambertian : Material
     {
         return false;
     }
+
+    /// @func getAlbedo - Returns the albedo (for GPU export)
+    Vec3 getAlbedo() const
+    {
+        return albedo;
+    }
 }
 
 unittest
 {
-    import lib.core.math : fequals;
+    import cpu.core.math : fequals;
 
     // Test Lambertian creation
     auto mat = new Lambertian(Vec3(0.5f, 0.5f, 0.5f));

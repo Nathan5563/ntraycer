@@ -3,10 +3,10 @@
  * This module provides the interface for objects that can be hit by rays. It
  * is implemented by geometric primitives which are used to build a scene.
  */
-module lib.scene.hittable.hittable;
+module cpu.scene.hittable.hittable;
 
-import lib.core.math : Vec3, Ray;
-import lib.scene.material.material : Material;
+import cpu.core.math : Vec3, Ray;
+import cpu.scene.material.material : Material;
 
 /// @struct HitInfo - Contains information about a ray-object intersection
 struct HitInfo
@@ -56,7 +56,7 @@ interface Hittable
 
 unittest
 {
-    import lib.core.math : fequals;
+    import cpu.core.math : fequals;
 
     // Test HitInfo setFaceNormal with front face hit
     HitInfo hitInfo;

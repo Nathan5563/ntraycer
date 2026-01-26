@@ -3,7 +3,7 @@
  * This module provides all of the mathematical types necessary for the
  * project, and it includes helpful utility functions.
  */
-module lib.core.math;
+module cpu.core.math;
 
 const float EPSILON = 1e-4f;
 const float PI = 3.14159265f;

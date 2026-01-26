@@ -3,12 +3,12 @@
  * This module implements the Metal (reflective) material which reflects
  * light with optional fuzziness for brushed metal effects.
  */
-module lib.scene.material.metal;
+module cpu.scene.material.metal;
 
-import lib.scene.material.material : Material, ScatterResult;
-import lib.core.math : Vec3, Ray, RNG;
-import lib.scene.hittable.hittable : HitInfo;
-import lib.core.math : reflect;
+import cpu.scene.material.material : Material, ScatterResult;
+import cpu.core.math : Vec3, Ray, RNG;
+import cpu.scene.hittable.hittable : HitInfo;
+import cpu.core.math : reflect;
 
 /// @class Metal - A reflective material with optional fuzziness
 class Metal : Material
@@ -68,11 +68,23 @@ class Metal : Material
     {
         return fuzz < 0.01f;
     }
+
+    /// @func getAlbedo - Returns the albedo (for GPU export)
+    Vec3 getAlbedo() const
+    {
+        return albedo;
+    }
+
+    /// @func getFuzz - Returns the fuzz factor (for GPU export)
+    float getFuzz() const
+    {
+        return fuzz;
+    }
 }
 
 unittest
 {
-    import lib.core.math : fequals;
+    import cpu.core.math : fequals;
 
     // Test Metal creation with no fuzz
     auto mirror = new Metal(Vec3(0.8f, 0.8f, 0.8f), 0.0f);

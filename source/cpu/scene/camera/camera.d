@@ -3,9 +3,9 @@
  * This module defines the Camera interface used to generate rays for rendering.
  * Different camera implementations provide different projection models.
  */
-module lib.scene.camera.camera;
+module cpu.scene.camera.camera;
 
-import lib.core.math : Vec2, Vec3, Ray;
+import cpu.core.math : Vec2, Vec3, Ray;
 
 /// @interface Camera - Interface for camera implementations
 interface Camera

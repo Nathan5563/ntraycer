@@ -3,7 +3,7 @@
  * This module provides functionality for mutable strings. It is used to
  * convert the rendered image into a text-based file format.
  */
-module lib.core.mutstring;
+module cpu.core.mutstring;
 
 /// @struct MutString - A mutable string buffer with dynamic growth
 struct MutString

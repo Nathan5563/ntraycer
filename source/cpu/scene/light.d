@@ -3,10 +3,10 @@
  * This module defines the Light interface and light sampling utilities
  * for Next Event Estimation (direct light sampling).
  */
-module lib.scene.light;
+module cpu.scene.light;
 
-import lib.core.math : Vec3, Ray, RNG;
-import lib.scene.hittable.hittable : Hittable, HitInfo;
+import cpu.core.math : Vec3, Ray, RNG;
+import cpu.scene.hittable.hittable : Hittable, HitInfo;
 
 /// @struct LightSample - Result of sampling a point on a light source
 struct LightSample

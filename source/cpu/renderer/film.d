@@ -3,10 +3,10 @@
  * This module provides the Film class which represents the image buffer
  * where rendered pixels are stored, and can be saved to various formats.
  */
-module lib.renderer.film;
+module cpu.renderer.film;
 
-import lib.core.mutstring : MutString;
-import lib.core.math : intToString;
+import cpu.core.mutstring : MutString;
+import cpu.core.math : intToString;
 
 /// @enum ImageFormat - Supported output image formats
 enum ImageFormat

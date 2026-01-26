@@ -3,15 +3,15 @@
  * This module implements the Sphere geometric primitive, one of the most
  * common objects used in ray tracing scenes.
  */
-module lib.scene.hittable.sphere;
+module cpu.scene.hittable.sphere;
 
-import lib.accel.aabb : AABB;
-import lib.accel.bvh : Boundable;
-import lib.core.math : Vec3, Ray, RNG, sqrt, PI, sin, cos;
-import lib.scene.hittable.hittable : Hittable, HitInfo;
-import lib.scene.light : Light, LightSample;
-import lib.scene.material.material : Material;
-import lib.scene.material.emissive : Emissive;
+import cpu.accel.aabb : AABB;
+import cpu.accel.bvh : Boundable;
+import cpu.core.math : Vec3, Ray, RNG, sqrt, PI, sin, cos;
+import cpu.scene.hittable.hittable : Hittable, HitInfo;
+import cpu.scene.light : Light, LightSample;
+import cpu.scene.material.material : Material;
+import cpu.scene.material.emissive : Emissive;
 
 /// @class Sphere - A sphere defined by center point and radius
 class Sphere : Hittable, Boundable, Light
@@ -127,12 +127,30 @@ class Sphere : Hittable, Boundable, Light
     {
         return 1.0f / getArea();
     }
+
+    /// @func getCenter - Returns the sphere center (for GPU export)
+    Vec3 getCenter() const
+    {
+        return center;
+    }
+
+    /// @func getRadius - Returns the sphere radius (for GPU export)
+    float getRadius() const
+    {
+        return radius;
+    }
+
+    /// @func getMaterial - Returns the material (for GPU export)
+    Material getMaterial() const
+    {
+        return cast(Material) material;
+    }
 }
 
 unittest
 {
-    import lib.core.math : fequals;
-    import lib.scene.material.lambertian : Lambertian;
+    import cpu.core.math : fequals;
+    import cpu.scene.material.lambertian : Lambertian;
 
     // Create a unit sphere at origin
     auto mat = new Lambertian(Vec3(1, 0, 0));

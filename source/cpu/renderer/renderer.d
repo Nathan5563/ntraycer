@@ -3,15 +3,15 @@
  * This module implements the path tracing Renderer which renders a scene
  * by tracing rays and accumulating color samples for each pixel.
  */
-module lib.renderer.renderer;
+module cpu.renderer.renderer;
 
-import lib.core.math : Vec2, Vec3, Ray, RNG, clamp, sqrt, max, abs, PI;
-import lib.scene.scene : Scene;
-import lib.scene.hittable.hittable : Hittable, HitInfo;
-import lib.scene.light : LightSample;
-import lib.scene.material.material : Material, ScatterResult;
-import lib.scene.material.emissive : Emissive;
-import lib.renderer.film : Film, Pixel;
+import cpu.core.math : Vec2, Vec3, Ray, RNG, clamp, sqrt, max, abs, PI;
+import cpu.scene.scene : Scene;
+import cpu.scene.hittable.hittable : Hittable, HitInfo;
+import cpu.scene.light : LightSample;
+import cpu.scene.material.material : Material, ScatterResult;
+import cpu.scene.material.emissive : Emissive;
+import cpu.renderer.film : Film, Pixel;
 
 /// @class Renderer - Path tracing renderer with Next Event Estimation
 class Renderer
@@ -194,7 +194,7 @@ class Renderer
 
 unittest
 {
-    import lib.core.math : fequals;
+    import cpu.core.math : fequals;
 
     // Test Renderer creation
     auto renderer = new Renderer(100, 50, 4, 10);
